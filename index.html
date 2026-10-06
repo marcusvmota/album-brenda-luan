@@ -43,6 +43,11 @@ img{display:block}
 .steps{display:flex;flex-direction:column;gap:2px}
 .step{display:grid;grid-template-columns:28px 1fr;gap:10px;text-align:left;padding:10px 12px;border-radius:10px;align-items:start}
 .step:hover{background:var(--cream)}
+.step-group{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:14px 12px 6px;display:flex;align-items:center;gap:8px}
+.step-group:first-child{padding-top:0}
+.step-group svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.editor-only{display:flex;flex-direction:column;gap:28px}
+.editor-only[hidden]{display:none}
 .step.on{background:var(--green);color:#fff}
 .step .n{font-family:var(--serif);font-size:20px;line-height:1;opacity:.7}
 .step b{display:block;font-size:14px;font-weight:600}
@@ -403,7 +408,7 @@ img{display:block}
   .mmenu button{display:block;width:100%;text-align:left;padding:12px 14px;border-radius:9px;font-size:15px;font-weight:600}
   .mmenu button:hover{background:var(--cream)}
   .mmenu hr{border:0;border-top:1px solid var(--line);margin:6px 4px}
-  .mmenu .role-on{color:#4F7FAB}
+  .mmenu .grp{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:10px 14px 4px}
   #s-entrada .names{font-size:clamp(40px, 12.5vw, 54px)}
   .top .names{font-size:clamp(26px, 8vw, 32px)}
   #s-album .names{font-size:clamp(36px, 11vw, 46px)}
@@ -439,6 +444,7 @@ img{display:block}
 
   <nav class="steps" id="steps"></nav>
 
+  <div class="editor-only" hidden>
   <div class="fieldset">
     <label>Personalizar</label>
     <input id="in-n1" placeholder="Noiva/Noivo 1">
@@ -469,6 +475,7 @@ img{display:block}
       <button data-r="guest" class="on">Convidado</button>
       <button data-r="couple">Noivos</button>
     </div>
+  </div>
   </div>
 
   <p class="foot">Fotos de exemplo (Unsplash). Neste protótipo nada sai do seu aparelho: as fotos que você “enviar” aparecem só aqui.</p>
@@ -719,22 +726,30 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /* ================= NAVEGAÇÃO ================= */
 const SCREENS = [
-  ['entrada', 'Entrada', 'O convidado lê o QR code da plaquinha da mesa e só digita o nome.'],
-  ['mural', 'Mural ao vivo', 'Fotos e polaroids de todos aparecem na hora. Dá pra curtir e filtrar por momento.'],
-  ['enviar', 'Enviar foto', 'Tira na hora ou escolhe da galeria. Opcional: virar polaroid com filtro analógico e recado à mão.'],
-  ['foto', 'Foto e story', 'Curtidas, comentários e o botão Story: a foto sai com a moldura do casamento pro Instagram.'],
-  ['album', 'Álbum dos noivos', 'Tudo por momento, download em qualidade original e as fotos separadas para revelar.'],
-  ['retro', 'Retrospectiva do convidado', 'No dia seguinte: a história do dia contada pelas fotos, e uma carta dos noivos para cada convidado.'],
-  ['retroNoivos', 'Retrospectiva dos noivos', 'Só pra Brenda e Luan: tudo o que eles não viram, os recados e os créditos de quem fez o álbum.'],
-  ['mesa', 'Plaquinha da mesa', 'No lugar do telão: um QR code impresso em cada mesa.'],
-  ['tv', 'Telão (opcional)', 'Se tiver TV ou projetor no salão, as fotos passam sozinhas.'],
+  ['entrada', 'Entrada', 'O convidado lê o QR code da plaquinha da mesa e só digita o nome.', 'guest'],
+  ['mural', 'Mural ao vivo', 'Fotos e polaroids de todos aparecem na hora. Dá pra curtir e filtrar por momento.', 'guest'],
+  ['enviar', 'Enviar foto', 'Tira na hora ou escolhe da galeria. Opcional: virar polaroid com filtro analógico e recado à mão.', 'guest'],
+  ['foto', 'Foto e story', 'Curtidas, comentários e o botão Story: a foto sai com a moldura do casamento pro Instagram.', 'guest'],
+  ['retro', 'Retrospectiva do convidado', 'No dia seguinte: a história do dia contada pelas fotos, e uma carta dos noivos para cada convidado.', 'guest'],
+  ['album', 'Álbum dos noivos', 'Tudo por momento, download em qualidade original, recados e as fotos separadas para revelar.', 'couple'],
+  ['retroNoivos', 'Retrospectiva dos noivos', 'Tudo o que vocês não viram, os recados e os créditos de quem fez o álbum.', 'couple'],
+  ['mesa', 'Plaquinha da mesa', 'No lugar do telão: um QR code impresso em cada mesa.', 'room'],
+  ['tv', 'Telão (opcional)', 'Se tiver TV ou projetor no salão, as fotos passam sozinhas.', 'room'],
 ];
+const GROUPS = { guest: 'Para os convidados', couple: 'Só para os noivos', room: 'No salão' };
+const LOCK = '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const EDITOR = new URLSearchParams(location.search).has('editar');
 
 let rMode = 'guest';
 function go(name) {
   if (name === 'back') name = prev;
   if (name === 'retroNoivos') { rMode = 'couple'; name = 'retro'; }
   else if (name === 'retro') rMode = 'guest';
+  // quem está vendo depende da tela: álbum e retrospectiva dos noivos = noivos; o resto = convidado
+  if (!EDITOR) {
+    if (name === 'album' || (name === 'retro' && rMode === 'couple')) role = 'couple';
+    else if (name !== 'foto' && name !== 'back') role = 'guest';
+  }
   if (name === 'tv') { openTV(); return; }
   if (name === 'mesa') { openMesa(); return; }
   if (name === 'foto' && !openId) openId = photos.find(p => !p.hidden && !p.pending).id;
@@ -755,11 +770,21 @@ function go(name) {
 }
 
 function renderSteps(active = current === 'retro' && rMode === 'couple' ? 'retroNoivos' : current) {
-  $('#steps').innerHTML = SCREENS.map(([k, t, d], i) =>
-    `<button class="step ${active === k ? 'on' : ''}" data-go="${k}"><span class="n">${i + 1}</span><div><b>${t}</b><span>${d}</span></div></button>`).join('');
-  $('#mmenu').innerHTML = SCREENS.map(([k, t], i) => `<button data-go="${k}">${i + 1}. ${t}</button>`).join('')
-    + `<hr><button data-role="${role === 'guest' ? 'couple' : 'guest'}" class="role-on">Ver como ${role === 'guest' ? 'noivos' : 'convidado'}</button>`;
+  let g = '', side = '', menu = '';
+  SCREENS.forEach(([k, t, d, grp], i) => {
+    if (grp !== g) {
+      g = grp;
+      side += `<div class="step-group">${grp === 'couple' ? LOCK : ''}${GROUPS[grp]}</div>`;
+      menu += `${i ? '<hr>' : ''}<div class="grp">${GROUPS[grp]}</div>`;
+    }
+    side += `<button class="step ${active === k ? 'on' : ''}" data-go="${k}"><span class="n">${i + 1}</span><div><b>${t}</b><span>${d}</span></div></button>`;
+    menu += `<button data-go="${k}">${i + 1}. ${t}</button>`;
+  });
+  $('#steps').innerHTML = side;
+  $('#mmenu').innerHTML = menu
+    + (EDITOR ? `<hr><button data-role="${role === 'guest' ? 'couple' : 'guest'}" class="role-on">Ver como ${role === 'guest' ? 'noivos' : 'convidado'}</button>` : '');
 }
+if (EDITOR) $('.editor-only').hidden = false;
 
 document.addEventListener('click', e => {
   const g = e.target.closest('[data-go]');
