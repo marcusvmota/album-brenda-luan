@@ -40,6 +40,7 @@ img{display:block}
 .panel h1{font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.1}
 .panel .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#4F7FAB;font-weight:600;margin-bottom:8px}
 .vlink{display:inline-block;margin-top:14px;font-size:13px;font-weight:700;color:#4F7FAB;text-decoration:none;border-bottom:1px solid currentColor}
+.panel p.guide{margin-top:-14px;padding:12px 14px;border-radius:10px;background:var(--cream);color:var(--ink)}
 .panel p.lede{font-size:14px;color:var(--muted);line-height:1.55;margin-top:10px}
 .steps{display:flex;flex-direction:column;gap:2px}
 .step{display:grid;grid-template-columns:28px 1fr;gap:10px;text-align:left;padding:10px 12px;border-radius:10px;align-items:start}
@@ -273,6 +274,7 @@ img{display:block}
 .reveal-mode .strip .t:not(.sel) img{opacity:.55}
 .strip .t .more{position:absolute;inset:0;background:rgba(14,24,38,.6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
 .al-actions{display:flex;flex-direction:column;gap:10px;margin-top:30px}
+.retro-card[hidden]{display:none!important}
 .retro-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;margin-top:20px;padding:10px;border-radius:16px;background:linear-gradient(120deg,rgba(127,168,204,.28),rgba(127,168,204,.08));border:1px solid rgba(156,192,222,.35);color:#fff;transition:transform .15s}
 .retro-card:active{transform:scale(.98)}
 .rc-img{width:62px;height:78px;border-radius:10px;background:#2A4466 center/cover;flex-shrink:0;box-shadow:0 6px 14px rgba(0,0,0,.3)}
@@ -495,6 +497,7 @@ img{display:block}
     <p class="lede">Cada convidado manda as fotos da festa e, se quiser, transforma em polaroid com um recado. Os noivos ficam com tudo em qualidade original, para baixar e revelar.</p>
   </div>
 
+  <p class="lede guide" id="guide">Comece pelo celular ao lado: escreva seu nome e entre no álbum, como um convidado faria.</p>
   <nav class="steps" id="steps"></nav>
 
   <div class="editor-only" hidden>
@@ -630,7 +633,7 @@ img{display:block}
           <h1 class="names" data-names></h1>
           <div class="stats" id="al-stats"></div>
 
-          <button class="retro-card" data-go="retroNoivos">
+          <button class="retro-card" data-go="retroNoivos" data-editor-only hidden>
             <span class="rc-img" id="rc-img"></span>
             <span class="rc-txt"><small>Feita pra vocês</small><b>A retrospectiva de vocês</b><i>O dia que vocês viveram, pelos olhos de quem estava lá</i></span>
             <span class="rc-play"><svg viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg></span>
@@ -799,6 +802,7 @@ const EDITOR = new URLSearchParams(location.search).has('editar');
 let rMode = 'guest';
 function go(name) {
   if (name === 'back') name = prev;
+  if (name === 'retroNoivos' && !EDITOR) name = 'album';
   if (name === 'retroNoivos') { rMode = 'couple'; name = 'retro'; }
   else if (name === 'retro') rMode = 'guest';
   // quem está vendo depende da tela: álbum e retrospectiva dos noivos = noivos; o resto = convidado
@@ -825,7 +829,20 @@ function go(name) {
   $('#mmenu').classList.remove('on');
 }
 
+const SHORTCUTS = [
+  ['retro', 'Retrospectiva do convidado', 'O que cada convidado recebe no dia seguinte: a história da festa pelas fotos dele.'],
+  ['album', 'Álbum dos noivos', 'Só para vocês: todas as fotos em qualidade original, recados e as escolhidas para revelar.'],
+];
 function renderSteps(active = current === 'retro' && rMode === 'couple' ? 'retroNoivos' : current) {
+  if (!EDITOR) {
+    const away = ['retro', 'album'].includes(current);
+    $('#steps').innerHTML = `<div class="step-group">Atalhos</div>`
+      + SHORTCUTS.map(([k, t, d], i) => `<button class="step ${active === k ? 'on' : ''}" data-go="${k}"><span class="n">${i + 1}</span><div><b>${t}</b><span>${d}</span></div></button>`).join('')
+      + (away ? `<button class="step" data-go="mural"><span class="n">←</span><div><b>Voltar ao mural</b></div></button>` : '');
+    $('#mmenu').innerHTML = SHORTCUTS.map(([k, t]) => `<button data-go="${k}">${t}</button>`).join('')
+      + (away ? `<hr><button data-go="mural">← Voltar ao mural</button>` : '');
+    return;
+  }
   let g = '', side = '', menu = '';
   SCREENS.forEach(([k, t, d, grp], i) => {
     if (grp !== g) {
@@ -840,7 +857,7 @@ function renderSteps(active = current === 'retro' && rMode === 'couple' ? 'retro
   $('#mmenu').innerHTML = menu
     + (EDITOR ? `<hr><button data-role="${role === 'guest' ? 'couple' : 'guest'}" class="role-on">Ver como ${role === 'guest' ? 'noivos' : 'convidado'}</button>` : '');
 }
-if (EDITOR) $('.editor-only').hidden = false;
+if (EDITOR) { $('.editor-only').hidden = false; $$('[data-editor-only]').forEach(el => el.hidden = false); $('#guide').hidden = true; }
 
 document.addEventListener('click', e => {
   const g = e.target.closest('[data-go]');
