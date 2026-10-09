@@ -15,7 +15,7 @@
 <meta property="og:image" content="https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=1200&h=630&fit=crop&q=80">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231F3A5C'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='26' fill='%23EEF1F4' text-anchor='middle'%3EB%26amp;L%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="apple-touch-icon" href="/album-brenda-luan/apple-touch-icon.png">
 <title>Brenda & Luan · Álbum dos convidados</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -190,13 +190,16 @@ img{display:block}
 .seg2 button.on{background:var(--green);color:#fff}
 .stagebox{margin:0 18px;display:flex;justify-content:center;align-items:center;min-height:180px;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .stagebox > *{animation:fadeo .3s ease;-webkit-user-drag:none}
+.pan-hint{text-align:center;font-size:12px;color:var(--muted);margin:10px 18px 0;display:flex;align-items:center;justify-content:center;gap:6px}
+.pan-hint[hidden]{display:none!important}
+.pan-hint svg{width:14px;height:14px}
 .modes{position:relative;height:42px;margin:14px 18px 0;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
 .modes-track{position:absolute;left:50%;top:0;display:flex;gap:28px;transition:transform .38s cubic-bezier(.2,.8,.2,1)}
 .modes button{font-size:12.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#9AA5B1;padding:8px 2px;white-space:nowrap;transition:color .25s}
 .modes button.on{color:var(--green)}
 .modes::after{content:"";position:absolute;left:50%;bottom:4px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--green)}
-.polcv{width:min(74%,290px);height:auto;transform:rotate(-1.5deg);box-shadow:0 14px 30px rgba(22,43,69,.22),0 2px 6px rgba(22,43,69,.1);background:#FBFAF7}
-.origimg{width:100%;max-height:300px;object-fit:cover;border-radius:14px;background:#000}
+.polcv{width:min(74%,290px);height:auto;transform:rotate(-1.5deg);touch-action:none;cursor:grab;box-shadow:0 14px 30px rgba(22,43,69,.22),0 2px 6px rgba(22,43,69,.1);background:#FBFAF7}
+.origimg{display:block;max-width:100%;width:auto;height:auto;max-height:min(56vh,440px);object-fit:contain;border-radius:14px;background:#000;box-shadow:0 10px 26px rgba(22,43,69,.16)}
 .thumbs{display:flex;gap:8px;margin:18px 18px 0;overflow-x:auto;scrollbar-width:none;padding:4px}
 .thumbs .th{position:relative;width:56px;height:56px;flex-shrink:0;border-radius:10px;overflow:visible}
 .thumbs .th img,.thumbs .th video{width:100%;height:100%;object-fit:cover;border-radius:10px;outline:2px solid transparent;outline-offset:2px}
@@ -219,7 +222,8 @@ img{display:block}
 #s-foto{background:#0E1826;color:#fff}
 #s-foto .hdr{position:absolute;top:0;left:0;right:0;z-index:5;background:linear-gradient(rgba(0,0,0,.55),transparent)}
 #s-foto .hdr .back{color:#fff}
-.fullimg{width:100%;max-height:470px;object-fit:cover;display:block}
+.fullimg{width:100%;height:auto;max-height:min(78vh,720px);object-fit:contain;display:block;margin:0 auto}
+#s-foto .fmedia{padding-top:calc(var(--sat) + 56px)}
 .vid-wrap{position:relative}
 .vid-wrap .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .vid-wrap .play span{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center}
@@ -305,6 +309,8 @@ img{display:block}
 .tv-photo{position:relative;border-radius:14px;overflow:hidden;background:#000}
 .tv-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;transform:scale(1.04)}
 .tv-photo img.on{opacity:1;animation:kb 9s ease-out forwards}
+.tv-photo .tv-bg{position:absolute;inset:-40px;background:center/cover no-repeat;filter:blur(28px) brightness(.45) saturate(1.1);opacity:0;transition:opacity 1.2s ease}
+.tv-photo .tv-bg.on{opacity:1}
 @keyframes kb{to{transform:scale(1)}}
 .tv-side{display:flex;flex-direction:column;padding:8px 0}
 .tv-side .names{font-size:64px;color:#fff;line-height:.95}
@@ -483,10 +489,9 @@ img{display:block}
 <!-- ============ PAINEL DO APRESENTADOR ============ -->
 <aside class="panel">
   <div>
-    <div class="kicker">Protótipo · versão B</div>
+    <div class="kicker">Protótipo</div>
     <h1>Álbum dos convidados</h1>
     <p class="lede">Cada convidado manda as fotos da festa e, se quiser, transforma em polaroid com um recado. Os noivos ficam com tudo em qualidade original, para baixar e revelar.</p>
-    <a class="vlink" href="../">← Comparar com a versão atual</a>
   </div>
 
   <nav class="steps" id="steps"></nav>
@@ -595,6 +600,7 @@ img{display:block}
           </div>
           <div id="env-edit" hidden>
             <div class="stagebox" id="stagebox"></div>
+            <div class="pan-hint" id="pan-hint" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3"/></svg><span>Arraste a foto para escolher o enquadramento</span></div>
             <div class="modes" id="style-seg"><div class="modes-track" id="modes-track"><button data-s="original" class="on">Foto</button><button data-s="polaroid">Polaroid</button></div></div>
             <div class="thumbs" id="thumbs"></div>
             <div class="form">
@@ -932,13 +938,13 @@ function applyLook(x, n, look) {
 }
 
 const photoCache = new Map();
-function filteredPhoto(img, look, size, key) {
-  const k = key && `${key}|${look}|${size}`;
+function filteredPhoto(img, look, size, key, fx = .5, fy = .5) {
+  const k = key && `${key}|${look}|${size}|${fx.toFixed(3)}|${fy.toFixed(3)}`;
   if (k && photoCache.has(k)) return photoCache.get(k);
   const c = document.createElement('canvas'); c.width = c.height = size;
   const x = c.getContext('2d', { willReadFrequently: true });
   const w = img.naturalWidth, h = img.naturalHeight, s = Math.min(w, h);
-  x.drawImage(img, (w - s) / 2, (h - s) / 2, s, s, 0, 0, size, size);
+  x.drawImage(img, (w - s) * fx, (h - s) * fy, s, s, 0, 0, size, size);
   applyLook(x, size, look);
   if (k) photoCache.set(k, c);
   return c;
@@ -1107,8 +1113,9 @@ $('#btn-gal').addEventListener('click', () => $('#file').click());
   if (!files.length) return;
   const first = staged.length;
   for (const f of files) {
-    const it = { url: URL.createObjectURL(f), video: f.type.startsWith('video'), look: 'analog', caption: '', style: 'original', key: 'f' + (++fileSeq) };
-    if (!it.video) { try { it.img = await loadImg(it.url); } catch (err) { continue; } }
+    const it = { url: URL.createObjectURL(f), video: f.type.startsWith('video'), look: 'analog', caption: '', style: 'original', key: 'f' + (++fileSeq), fx: .5, fy: .5 };
+    if (!it.video) { try { it.img = await loadImg(it.url); } catch (err) { continue; }
+      if (it.img.naturalHeight > it.img.naturalWidth * 1.05) it.fy = .3; }
     staged.push(it);
   }
   cur = Math.min(first, staged.length - 1);
@@ -1128,14 +1135,37 @@ function placeModes() {
   $('#modes-track').style.transform = `translateX(${-(on.offsetLeft + on.offsetWidth / 2)}px)`;
 }
 // arrastar a prévia pro lado troca entre Foto e Polaroid (como na câmera do celular)
-let swX = null;
-$('#stagebox').addEventListener('pointerdown', e => { swX = e.clientX; });
-$('#stagebox').addEventListener('pointerup', e => {
-  if (swX === null) return;
-  const dx = e.clientX - swX; swX = null;
-  if (Math.abs(dx) > 40) setStyle(dx < 0 ? 'polaroid' : 'original');
+let swX = null, swY = null, pan = null, panRAF = 0;
+$('#stagebox').addEventListener('pointerdown', e => {
+  swX = e.clientX; swY = e.clientY;
+  const it = staged[cur], ax = panAxis(it), cv = e.target.closest('.polcv');
+  if (ax && cv) {
+    const w = it.img.naturalWidth, h = it.img.naturalHeight, sq = Math.min(w, h);
+    // px da tela → fração do enquadramento (a foto ocupa 968/1080 da largura da polaroid)
+    const shown = cv.getBoundingClientRect().width * 968 / 1080;
+    pan = { ax, x: e.clientX, y: e.clientY, fx: it.fx, fy: it.fy, k: (sq / shown) / ((ax === 'y' ? h : w) - sq) };
+    if (ax === 'x') swX = null; // foto deitada: arrastar pro lado é enquadrar, não trocar
+    try { $('#stagebox').setPointerCapture(e.pointerId); } catch (_) {}
+    cv.style.cursor = 'grabbing';
+  }
 });
-$('#stagebox').addEventListener('pointercancel', () => swX = null);
+$('#stagebox').addEventListener('pointermove', e => {
+  if (!pan) return;
+  const it = staged[cur], d = pan.ax === 'y' ? e.clientY - pan.y : e.clientX - pan.x;
+  const v = Math.min(1, Math.max(0, (pan.ax === 'y' ? pan.fy : pan.fx) - d * pan.k));
+  if (pan.ax === 'y') it.fy = v; else it.fx = v;
+  if (Math.abs(d) > 6) $('#pan-hint').hidden = true;
+  cancelAnimationFrame(panRAF); panRAF = requestAnimationFrame(drawPreview);
+});
+function endPan(e, cancel) {
+  const wasPan = pan; pan = null;
+  if (cancel || swX === null) { swX = null; return; }
+  const dx = e.clientX - swX, dy = e.clientY - swY; swX = null;
+  if (wasPan && Math.abs(dy) > Math.abs(dx) * .7) return; // foi enquadramento, não troca
+  if (Math.abs(dx) > 40) setStyle(dx < 0 ? 'polaroid' : 'original');
+}
+$('#stagebox').addEventListener('pointerup', e => endPan(e));
+$('#stagebox').addEventListener('pointercancel', e => endPan(e, true));
 $('#thumbs').addEventListener('click', e => {
   const rm = e.target.closest('[data-rm]');
   if (rm) { staged.splice(+rm.dataset.rm, 1); cur = Math.max(0, Math.min(cur, staged.length - 1)); renderEditor(); return; }
@@ -1184,7 +1214,15 @@ function renderEditor() {
   $('#env-note').textContent = pol
     ? 'O original também vai pro álbum dos noivos, sem filtro e em qualidade máxima.'
     : n > 1 && polEnabled ? 'Toque em cada miniatura pra escolher foto ou polaroid.' : 'Vai pro mural na hora e pro álbum dos noivos em qualidade original.';
+  $('#pan-hint').hidden = !(pol && panAxis(it));
   drawPreview();
+}
+
+// em que direção dá pra arrastar o enquadramento da polaroid ('' = foto já é quadrada)
+function panAxis(it) {
+  if (!it || it.video || !it.img || it.style !== 'polaroid') return '';
+  const w = it.img.naturalWidth, h = it.img.naturalHeight;
+  return h > w * 1.03 ? 'y' : w > h * 1.03 ? 'x' : '';
 }
 
 async function drawPreview() {
@@ -1194,7 +1232,7 @@ async function drawPreview() {
     return;
   }
   await fontsReady;
-  const pc = composePolaroid(filteredPhoto(it.img, it.look, 484, it.key), it.caption, .5);
+  const pc = composePolaroid(filteredPhoto(it.img, it.look, 484, it.key, it.fx, it.fy), it.caption, .5);
   pc.className = 'polcv'; box.replaceChildren(pc);
 }
 
@@ -1208,9 +1246,10 @@ $('#btn-publish').addEventListener('click', async () => {
     const p = { id: ++uid, moment: momentSel, by: guest || 'Você', caption: it.caption.trim(), h: null, likes: 0, liked: false, comments: [], rev: false, hidden: false, mins: 0, mine: true };
     if (it.video) { p.local = it.url; p.video = true; }
     else if (it.style === 'polaroid') {
-      p.local = composePolaroid(filteredPhoto(it.img, it.look, 968), p.caption, 1).toDataURL('image/jpeg', .9);
+      p.local = composePolaroid(filteredPhoto(it.img, it.look, 968, null, it.fx, it.fy), p.caption, 1).toDataURL('image/jpeg', .9);
       p.pol = true; p.orig = it.url;
     } else p.local = it.url;
+    if (it.img) p.ar = it.img.naturalWidth / it.img.naturalHeight;
     out.push(p);
     await sleep(350);
   }
@@ -1375,7 +1414,8 @@ $('#s-foto .back').addEventListener('click', e => { e.stopPropagation(); flyBack
 function renderFoto() {
   const p = photos.find(x => x.id === openId); if (!p) return;
   let media;
-  const ar = flyRatio ? `style="aspect-ratio:${flyRatio}"` : ''; flyRatio = 0;
+  const r0 = flyRatio || p.ar || 0; flyRatio = 0;
+  const ar = r0 ? `style="aspect-ratio:${r0};width:min(100%, calc(min(78vh, 720px) * ${r0.toFixed(4)}))"` : '';
   if (p.video) media = `<div class="vid-wrap">${p.local ? `<video class="fullimg" src="${p.local}" controls playsinline></video>` : `<img class="fullimg" src="${imgOf(p, 900)}" alt="" ${ar}><div class="play"><span>${playSvg}</span></div>`}</div>`;
   else if (p.pol) media = `<div class="pol-full"><img src="${p.local}" alt="" style="aspect-ratio:1080/1320" draggable="false"></div>`;
   else media = `<img class="fullimg" src="${imgOf(p, 900)}" alt="" ${ar} draggable="false">`;
@@ -1702,6 +1742,12 @@ function tvShow() {
   const img = new Image(); img.src = imgOf(p, 1400);
   if (p.pol) { img.style.objectFit = 'contain'; img.style.padding = '24px'; }
   img.onload = () => {
+    const tall = !p.pol && img.naturalHeight > img.naturalWidth;
+    // vertical no telão: inteira, com a própria foto desfocada e escura atrás
+    let bg = box.querySelector('.tv-bg');
+    if (!bg) { bg = document.createElement('div'); bg.className = 'tv-bg'; box.prepend(bg); }
+    if (tall) { img.style.objectFit = 'contain'; bg.style.backgroundImage = `url("${img.src}")`; }
+    bg.classList.toggle('on', tall);
     box.appendChild(img);
     requestAnimationFrame(() => img.classList.add('on'));
     const olds = [...box.querySelectorAll('img')].slice(0, -1);
