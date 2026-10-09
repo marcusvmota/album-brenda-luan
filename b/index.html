@@ -198,6 +198,7 @@ img{display:block}
 .modes button{font-size:12.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#9AA5B1;padding:8px 2px;white-space:nowrap;transition:color .25s}
 .modes button.on{color:var(--green)}
 .modes::after{content:"";position:absolute;left:50%;bottom:4px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--green)}
+.polcv.tall{width:min(60%,250px)}
 .polcv{width:min(74%,290px);height:auto;transform:rotate(-1.5deg);touch-action:none;cursor:grab;box-shadow:0 14px 30px rgba(22,43,69,.22),0 2px 6px rgba(22,43,69,.1);background:#FBFAF7}
 .origimg{display:block;max-width:100%;width:auto;height:auto;max-height:min(56vh,440px);object-fit:contain;border-radius:14px;background:#000;box-shadow:0 10px 26px rgba(22,43,69,.16)}
 .thumbs{display:flex;gap:8px;margin:18px 18px 0;overflow-x:auto;scrollbar-width:none;padding:4px}
@@ -400,7 +401,7 @@ img{display:block}
 .r-credits li.more{font-family:"Caveat",cursive;color:var(--sage);font-size:30px;margin-top:14px}
 @keyframes roll{from{transform:translateY(0)}to{transform:translateY(-100%)}}
 .r-photo{width:min(76%,300px);margin:22px auto 0;transform:rotate(-2deg);box-shadow:0 22px 44px rgba(0,0,0,.5);border:9px solid #FBFAF7;border-bottom-width:38px;aspect-ratio:1;object-fit:cover}
-.r-photo.pol{border:0;aspect-ratio:auto;object-fit:initial}
+.r-photo.pol{border:0;aspect-ratio:auto;object-fit:initial;width:auto;max-width:min(76%,300px);max-height:50vh}
 .r-scatter{position:relative;flex:1;min-height:150px;margin:14px 0 6px}
 .r-scatter img{position:absolute;max-height:56%;object-fit:contain;box-shadow:0 14px 30px rgba(0,0,0,.5)}
 .r-scatter img.fr{border:7px solid #FBFAF7;border-bottom-width:24px;aspect-ratio:1;object-fit:cover;height:auto}
@@ -900,11 +901,11 @@ function loadImg(src) {
 }
 
 const LOOKS = [['analog', 'Analógico'], ['azul', 'Azulado'], ['pb', 'P&B'], ['none', 'Sem filtro']];
-function applyLook(x, n, look) {
+function applyLook(x, n, look, nh = n) {
   if (look === 'none') return;
-  const d = x.getImageData(0, 0, n, n), a = d.data, c = n / 2, md = 2 * c * c;
-  for (let y = 0; y < n; y++) {
-    const dy = (y - c) * (y - c);
+  const d = x.getImageData(0, 0, n, nh), a = d.data, c = n / 2, ch = nh / 2, md = c * c + ch * ch;
+  for (let y = 0; y < nh; y++) {
+    const dy = (y - ch) * (y - ch);
     for (let xx = 0; xx < n; xx++) {
       const i = (y * n + xx) * 4;
       let r = a[i], g = a[i + 1], b = a[i + 2];
@@ -929,23 +930,29 @@ function applyLook(x, n, look) {
     x.globalCompositeOperation = 'screen';
     let gd = x.createRadialGradient(n * .96, n * .04, 0, n * .96, n * .04, n * .6);
     gd.addColorStop(0, 'rgba(255,128,60,.42)'); gd.addColorStop(1, 'rgba(255,128,60,0)');
-    x.fillStyle = gd; x.fillRect(0, 0, n, n);
-    gd = x.createRadialGradient(0, n, 0, 0, n, n * .45);
+    x.fillStyle = gd; x.fillRect(0, 0, n, nh);
+    gd = x.createRadialGradient(0, nh, 0, 0, nh, n * .45);
     gd.addColorStop(0, 'rgba(255,214,120,.18)'); gd.addColorStop(1, 'rgba(255,214,120,0)');
-    x.fillStyle = gd; x.fillRect(0, 0, n, n);
+    x.fillStyle = gd; x.fillRect(0, 0, n, nh);
     x.globalCompositeOperation = 'source-over';
   }
 }
 
 const photoCache = new Map();
-function filteredPhoto(img, look, size, key, fx = .5, fy = .5) {
-  const k = key && `${key}|${look}|${size}|${fx.toFixed(3)}|${fy.toFixed(3)}`;
+// pedaço da foto que cabe numa janela com altura = ratio × largura
+function cropOf(img, ratio = 1) {
+  const w = img.naturalWidth, h = img.naturalHeight;
+  return w * ratio > h ? { w, h, sw: h / ratio, sh: h } : { w, h, sw: w, sh: w * ratio };
+}
+function filteredPhoto(img, look, size, key, fx = .5, fy = .5, ratio = 1) {
+  const k = key && `${key}|${look}|${size}|${ratio.toFixed(3)}|${fx.toFixed(3)}|${fy.toFixed(3)}`;
   if (k && photoCache.has(k)) return photoCache.get(k);
-  const c = document.createElement('canvas'); c.width = c.height = size;
+  const sizeH = Math.round(size * ratio);
+  const c = document.createElement('canvas'); c.width = size; c.height = sizeH;
   const x = c.getContext('2d', { willReadFrequently: true });
-  const w = img.naturalWidth, h = img.naturalHeight, s = Math.min(w, h);
-  x.drawImage(img, (w - s) * fx, (h - s) * fy, s, s, 0, 0, size, size);
-  applyLook(x, size, look);
+  const { w, h, sw, sh } = cropOf(img, ratio);
+  x.drawImage(img, (w - sw) * fx, (h - sh) * fy, sw, sh, 0, 0, size, sizeH);
+  applyLook(x, size, look, sizeH);
   if (k) photoCache.set(k, c);
   return c;
 }
@@ -975,24 +982,34 @@ function drawHand(x, text, cx, cy, maxW, scale) {
   x.restore();
 }
 
-// polaroid 1080×1320 (scale ajusta a resolução)
+// polaroid: quadrada 1080×1320 ou, se a foto for vertical, Instax mini 1080×1720 (scale ajusta a resolução)
+const POL = {
+  sq:     { W: 1080, H: 1320, M: 56, T: 56,  PW: 968, PH: 968 },
+  instax: { W: 1080, H: 1720, M: 72, T: 104, PW: 936, PH: 1262 },
+};
+const polFmt = img => img && img.naturalHeight > img.naturalWidth * 1.05 ? 'instax' : 'sq';
+function polPhoto(img, look, scale = 1, key = null, fx = .5, fy = .5) {
+  const f = POL[polFmt(img)];
+  return filteredPhoto(img, look, Math.round(f.PW * scale), key, fx, fy, f.PH / f.PW);
+}
 function composePolaroid(ph, caption, scale = 1) {
-  const W = 1080 * scale, H = 1320 * scale, M = 56 * scale, P = 968 * scale;
+  const f = POL[ph.height > ph.width * 1.05 ? 'instax' : 'sq'];
+  const W = f.W * scale, H = f.H * scale, M = f.M * scale, T = f.T * scale, P = f.PW * scale, PH = f.PH * scale;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
   const pg = x.createLinearGradient(0, 0, W, H); pg.addColorStop(0, '#FCFBF8'); pg.addColorStop(1, '#F1EFEA');
   x.fillStyle = pg; x.fillRect(0, 0, W, H);
-  x.drawImage(ph, M, M, P, P);
-  x.strokeStyle = 'rgba(0,0,0,.08)'; x.lineWidth = 2 * scale; x.strokeRect(M, M, P, P);
+  x.drawImage(ph, M, T, P, PH);
+  x.strokeStyle = 'rgba(0,0,0,.08)'; x.lineWidth = 2 * scale; x.strokeRect(M, T, P, PH);
   const ds = dateStamp();
   if (ds) {
     x.save();
     x.font = `700 ${34 * scale}px "Courier New", monospace`; x.textAlign = 'right'; x.textBaseline = 'alphabetic';
     x.shadowColor = 'rgba(255,110,30,.9)'; x.shadowBlur = 10 * scale;
-    x.fillStyle = 'rgba(255,146,64,.92)'; x.fillText(ds, M + P - 30 * scale, M + P - 30 * scale);
+    x.fillStyle = 'rgba(255,146,64,.92)'; x.fillText(ds, M + P - 30 * scale, T + PH - 30 * scale);
     x.restore();
   }
-  drawHand(x, caption, W / 2, M + P + 128 * scale, P - 40 * scale, scale);
+  drawHand(x, caption, W / 2, T + PH + (H - T - PH - 40 * scale) / 2, P - 40 * scale, scale);
   x.font = `500 ${22 * scale}px "Cormorant Garamond", Georgia, serif`; x.fillStyle = 'rgba(27,42,58,.38)';
   x.textAlign = 'right'; x.textBaseline = 'alphabetic';
   x.fillText(`${st.n1} & ${st.n2}`, W - M, H - 22 * scale);
@@ -1002,7 +1019,8 @@ function composePolaroid(ph, caption, scale = 1) {
 async function renderSeedPol(p, scale = .6) {
   await fontsReady;
   const img = await loadImg(U(p.src, 900));
-  const ph = filteredPhoto(img, p.look, Math.round(968 * scale));
+  const ph = polPhoto(img, p.look, scale);
+  p.polFmt = polFmt(img);
   p.local = composePolaroid(ph, p.caption, scale).toDataURL('image/jpeg', .88);
   p.pending = false;
 }
@@ -1140,10 +1158,10 @@ $('#stagebox').addEventListener('pointerdown', e => {
   swX = e.clientX; swY = e.clientY;
   const it = staged[cur], ax = panAxis(it), cv = e.target.closest('.polcv');
   if (ax && cv) {
-    const w = it.img.naturalWidth, h = it.img.naturalHeight, sq = Math.min(w, h);
-    // px da tela → fração do enquadramento (a foto ocupa 968/1080 da largura da polaroid)
-    const shown = cv.getBoundingClientRect().width * 968 / 1080;
-    pan = { ax, x: e.clientX, y: e.clientY, fx: it.fx, fy: it.fy, k: (sq / shown) / ((ax === 'y' ? h : w) - sq) };
+    const f = POL[polFmt(it.img)], { w, h, sw, sh } = cropOf(it.img, f.PH / f.PW);
+    // px da tela → fração do enquadramento (a foto ocupa PW/W da largura da moldura)
+    const shown = cv.getBoundingClientRect().width * f.PW / f.W;
+    pan = { ax, x: e.clientX, y: e.clientY, fx: it.fx, fy: it.fy, k: (sw / shown) / (ax === 'y' ? h - sh : w - sw) };
     if (ax === 'x') swX = null; // foto deitada: arrastar pro lado é enquadrar, não trocar
     try { $('#stagebox').setPointerCapture(e.pointerId); } catch (_) {}
     cv.style.cursor = 'grabbing';
@@ -1221,8 +1239,8 @@ function renderEditor() {
 // em que direção dá pra arrastar o enquadramento da polaroid ('' = foto já é quadrada)
 function panAxis(it) {
   if (!it || it.video || !it.img || it.style !== 'polaroid') return '';
-  const w = it.img.naturalWidth, h = it.img.naturalHeight;
-  return h > w * 1.03 ? 'y' : w > h * 1.03 ? 'x' : '';
+  const f = POL[polFmt(it.img)], { w, h, sw, sh } = cropOf(it.img, f.PH / f.PW);
+  return h - sh > h * .03 ? 'y' : w - sw > w * .03 ? 'x' : '';
 }
 
 async function drawPreview() {
@@ -1232,8 +1250,8 @@ async function drawPreview() {
     return;
   }
   await fontsReady;
-  const pc = composePolaroid(filteredPhoto(it.img, it.look, 484, it.key, it.fx, it.fy), it.caption, .5);
-  pc.className = 'polcv'; box.replaceChildren(pc);
+  const pc = composePolaroid(polPhoto(it.img, it.look, .5, it.key, it.fx, it.fy), it.caption, .5);
+  pc.className = 'polcv' + (polFmt(it.img) === 'instax' ? ' tall' : ''); box.replaceChildren(pc);
 }
 
 $('#btn-publish').addEventListener('click', async () => {
@@ -1246,8 +1264,8 @@ $('#btn-publish').addEventListener('click', async () => {
     const p = { id: ++uid, moment: momentSel, by: guest || 'Você', caption: it.caption.trim(), h: null, likes: 0, liked: false, comments: [], rev: false, hidden: false, mins: 0, mine: true };
     if (it.video) { p.local = it.url; p.video = true; }
     else if (it.style === 'polaroid') {
-      p.local = composePolaroid(filteredPhoto(it.img, it.look, 968, null, it.fx, it.fy), p.caption, 1).toDataURL('image/jpeg', .9);
-      p.pol = true; p.orig = it.url;
+      p.local = composePolaroid(polPhoto(it.img, it.look, 1, null, it.fx, it.fy), p.caption, 1).toDataURL('image/jpeg', .9);
+      p.pol = true; p.orig = it.url; p.polFmt = polFmt(it.img);
     } else p.local = it.url;
     if (it.img) p.ar = it.img.naturalWidth / it.img.naturalHeight;
     out.push(p);
@@ -1313,7 +1331,7 @@ async function makePhotoStory(p) {
   await fontsReady;
   const [c, x] = storyBase();
   const img = await loadImg(p.local || U(p.src, 1080));
-  if (p.pol) drawTilted(x, img, 540, 1010, 820, 820 * 1320 / 1080, -3, false);
+  if (p.pol) { const ar = img.naturalHeight / img.naturalWidth, w = Math.min(820, 1010 / ar); drawTilted(x, img, 540, 1010, w, w * ar, -3, false); }
   else drawTilted(x, img, 540, 990, 780, 975, -2.5, true);
   storyFooter(x, `foto de ${p.by}`);
   return c;
@@ -1327,7 +1345,7 @@ async function makeRetroStory(d) {
   const sz = ok.length === 1 ? 600 : 440;
   ok.forEach(([p, i], k) => {
     const [cx, cy, deg] = spots[k];
-    if (p.pol) drawTilted(x, i, cx, cy, sz, sz * 1320 / 1080, deg, false);
+    if (p.pol) { const ar = i.naturalHeight / i.naturalWidth, w = Math.min(sz, sz * 1.22 / ar); drawTilted(x, i, cx, cy, w, w * ar, deg, false); }
     else drawTilted(x, i, cx, cy, sz - 40, sz - 40, deg, true);
   });
   x.fillStyle = '#9CC0DE'; x.font = '700 26px Manrope, sans-serif';
@@ -1417,7 +1435,7 @@ function renderFoto() {
   const r0 = flyRatio || p.ar || 0; flyRatio = 0;
   const ar = r0 ? `style="aspect-ratio:${r0};width:min(100%, calc(min(78vh, 720px) * ${r0.toFixed(4)}))"` : '';
   if (p.video) media = `<div class="vid-wrap">${p.local ? `<video class="fullimg" src="${p.local}" controls playsinline></video>` : `<img class="fullimg" src="${imgOf(p, 900)}" alt="" ${ar}><div class="play"><span>${playSvg}</span></div>`}</div>`;
-  else if (p.pol) media = `<div class="pol-full"><img src="${p.local}" alt="" style="aspect-ratio:1080/1320" draggable="false"></div>`;
+  else if (p.pol) media = `<div class="pol-full"><img src="${p.local}" alt="" style="aspect-ratio:${p.polFmt === 'instax' ? '1080/1720;width:min(70%,300px,calc(64vh * .628))' : '1080/1320'}" draggable="false"></div>`;
   else media = `<img class="fullimg" src="${imgOf(p, 900)}" alt="" ${ar} draggable="false">`;
   $('#foto-body').innerHTML = `<div class="fmedia" id="fmedia">${media}</div>
     <div class="det">
@@ -1827,7 +1845,7 @@ applyNames(); renderSteps(); fitPhone();
 // pré-renderiza as polaroids de exemplo
 Promise.all(photos.filter(p => p.pol).map(p => renderSeedPol(p).catch(() => { p.pol = false; p.pending = false; })))
   .then(() => {
-    const demo = photos.filter(p => p.pol).slice(0, 2);
+    const demo = [...photos.filter(p => p.pol && p.polFmt !== 'instax'), ...photos.filter(p => p.pol && p.polFmt === 'instax')].slice(0, 2);
     $('#pol-demo').innerHTML = demo.map(p => `<img src="${p.local}" alt="">`).join('');
     if (current === 'mural') renderMural();
     window.__seedReady = true;
