@@ -373,6 +373,11 @@ img{display:block}
 .share-btn svg{width:17px;height:17px}
 .btn.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
 .story-wrap{display:flex;justify-content:center;margin:16px 0}
+.book-wrap{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:16px 0}
+.book-wrap img{width:calc(50% - 6px);max-width:190px;aspect-ratio:1240/1748;border-radius:3px;box-shadow:0 10px 26px rgba(22,43,69,.22)}
+.book-load{width:100%;max-width:392px;aspect-ratio:2480/1748;border-radius:10px;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
+.book-info{flex-basis:100%;text-align:center;font-size:12.5px;color:var(--muted)}
+#rec-book .icon,#btn-livro .icon{width:18px;height:18px}
 .story-prev,.story-load{height:clamp(220px,42vh,400px);aspect-ratio:9/16;border-radius:14px;box-shadow:0 10px 30px rgba(22,43,69,.22);background:var(--cream)}
 .story-load{display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
 .share-actions{display:flex;gap:10px}
@@ -680,6 +685,7 @@ img{display:block}
             </button>
             <button class="btn ghost" id="btn-dl-rev" hidden>Baixar só as separadas para revelar</button>
             <button class="btn ghost" id="btn-recados">Ver recados dos convidados</button>
+            <button class="btn ghost" id="btn-livro"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg>Livro de recados (PDF)</button>
             <p class="drive-note">Originais guardados no Google Drive, organizados por momento.</p>
           </div>
         </div>
@@ -1661,11 +1667,205 @@ $('#btn-dl-rev').addEventListener('click', () => {
   const n = photos.filter(p => p.rev && !p.hidden).length;
   downloadSheet('Fotos para revelar', [['Separadas por vocês', `${n} fotos`], ['Formato', 'JPG, pronto para a gráfica']], `${(n * 4.2).toFixed(0)} MB`);
 });
+const bookSvg = '<svg class="icon" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg>';
 $('#btn-recados').addEventListener('click', () => {
   const rec = notes.filter(n => !n.hidden).map(n => ({ t: n.text, by: n.by, where: 'Recadinho' }))
     .concat(photos.filter(p => p.caption && !p.hidden && !p.pending).map(p => ({ t: p.caption, by: p.by, where: `Na foto · ${p.moment}` })));
-  openSheet(`<h4>Recados</h4><p>${rec.length} recados: os recadinhos e os que vieram junto com as fotos.</p><div style="margin-top:10px">${rec.map(x => `<div class="recado"><q>${esc(x.t)}</q><span>${esc(x.by)} · ${x.where}</span></div>`).join('')}</div>`);
+  openSheet(`<h4>Recados</h4><p>${rec.length} recados: os recadinhos e os que vieram junto com as fotos.</p><button class="btn" id="rec-book" style="margin-top:14px">${bookSvg}Baixar o livro de recados (PDF)</button><div style="margin-top:10px">${rec.map(x => `<div class="recado"><q>${esc(x.t)}</q><span>${esc(x.by)} · ${x.where}</span></div>`).join('')}</div>`);
+  $('#rec-book').onclick = openBook;
 });
+
+/* ================= LIVRO DE RECADOS (PDF gerado no celular) ================= */
+const BOOK = { W: 1240, H: 1748, S: 1.4, M: 110 };   // A5 em pé; S = nitidez pra impressão
+const NOTE_FONT = '600 46px Caveat', SIG_FONT = '600 40px Caveat', LBL_FONT = '700 18px Manrope';
+const slug = t => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const pdfAscii = t => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7E]/g, '').replace(/[()\\]/g, '');
+function bookItems() {
+  const a = notes.filter(n => !n.hidden).map(n => ({ text: n.text, by: n.by, mins: n.mins, label: 'Recadinho' }));
+  const b = photos.filter(p => p.caption && !p.hidden && !p.pending)
+    .map(p => ({ text: p.caption, by: p.by, mins: p.mins, label: `Junto com a foto · ${p.moment}`, photo: p }));
+  return a.concat(b).sort((x, y) => y.mins - x.mins);   // do primeiro ao último da noite
+}
+function wrapText(x, text, maxW) {
+  const lines = []; let line = '';
+  for (let w of String(text).split(/\s+/).filter(Boolean)) {
+    while (x.measureText(w).width > maxW) {   // palavra gigante: quebra no meio
+      let k = w.length; while (k > 1 && x.measureText(w.slice(0, k)).width > maxW) k--;
+      if (line) { lines.push(line); line = ''; }
+      lines.push(w.slice(0, k)); w = w.slice(k);
+    }
+    const t = line ? line + ' ' + w : w;
+    if (line && x.measureText(t).width > maxW) { lines.push(line); line = w; } else line = t;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+function spaced(x, text, at, y, sp, align = 'center') {   // texto com espaçamento entre letras (funciona em qualquer navegador)
+  const ch = [...text], w = ch.reduce((s, c) => s + x.measureText(c).width, 0) + sp * (ch.length - 1);
+  let px = align === 'center' ? at - w / 2 : align === 'right' ? at - w : at;
+  const old = x.textAlign; x.textAlign = 'left';
+  ch.forEach(c => { x.fillText(c, px, y); px += x.measureText(c).width + sp; });
+  x.textAlign = old;
+}
+function miniPol(img) {   // foto comum vira uma mini polaroid no livro
+  const c = document.createElement('canvas'); c.width = 600; c.height = 720;
+  const x = c.getContext('2d'); x.fillStyle = '#FBFAF7'; x.fillRect(0, 0, 600, 720);
+  const s = Math.min(img.width, img.height);
+  x.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 30, 30, 540, 540);
+  return c;
+}
+function measureCard(x, it) {
+  const pad = 46, hasPh = !!it.img, w = hasPh ? BOOK.W - 2 * BOOK.M : 860;
+  let phH = 0, phW = 0;
+  if (hasPh) { phH = Math.min(340, Math.round(260 * it.img.height / it.img.width)); phW = Math.round(phH * it.img.width / it.img.height); }
+  x.font = NOTE_FONT;
+  const tw = w - 2 * pad - (hasPh ? phW + 44 : 0);
+  const lines = wrapText(x, it.text, tw);
+  return { w, pad, phW, phH, lines, h: Math.max(lines.length * 54 + 94, phH + 10) + 2 * pad };
+}
+function drawCard(x, it, m, X, Y, rot) {
+  x.save(); x.translate(X + m.w / 2, Y + m.h / 2); x.rotate(rot * Math.PI / 180); x.translate(-m.w / 2, -m.h / 2);
+  x.shadowColor = 'rgba(22,43,69,.15)'; x.shadowBlur = 34; x.shadowOffsetY = 12;
+  x.fillStyle = '#FBFAF7'; x.fillRect(0, 0, m.w, m.h);
+  x.shadowColor = 'transparent';
+  x.save(); x.translate(m.w / 2, 4); x.rotate(-3 * Math.PI / 180); x.fillStyle = 'rgba(156,192,222,.62)'; x.fillRect(-72, -20, 144, 40); x.restore();
+  let tx = m.pad;
+  if (it.img) {
+    x.save(); x.shadowColor = 'rgba(22,43,69,.2)'; x.shadowBlur = 16; x.shadowOffsetY = 5;
+    x.drawImage(it.img, m.pad, m.pad, m.phW, m.phH); x.restore();
+    tx = m.pad + m.phW + 44;
+  }
+  x.textAlign = 'left'; x.fillStyle = '#26364A'; x.font = NOTE_FONT;
+  let y = m.pad + 40;
+  m.lines.forEach(l => { x.fillText(l, tx, y); y += 54; });
+  x.font = SIG_FONT; x.fillStyle = '#4F7FAB'; x.textAlign = 'right';
+  x.fillText('— ' + it.by, m.w - m.pad, y + 16);
+  x.font = LBL_FONT; x.fillStyle = '#93A0AD';
+  spaced(x, it.label.toUpperCase(), tx, m.h - m.pad + 4, 2.5, 'left');
+  x.restore();
+}
+function bookCanvas() {
+  const c = document.createElement('canvas'); c.width = Math.round(BOOK.W * BOOK.S); c.height = Math.round(BOOK.H * BOOK.S);
+  const x = c.getContext('2d'); x.scale(BOOK.S, BOOK.S); x.textBaseline = 'alphabetic'; return [c, x];
+}
+function bookCover(n) {
+  const [c, x] = bookCanvas(), W = BOOK.W, H = BOOK.H;
+  x.fillStyle = '#1F3B5C'; x.fillRect(0, 0, W, H);
+  x.strokeStyle = 'rgba(183,207,227,.5)'; x.lineWidth = 2; x.strokeRect(62, 62, W - 124, H - 124);
+  x.strokeStyle = 'rgba(183,207,227,.22)'; x.strokeRect(78, 78, W - 156, H - 156);
+  x.textAlign = 'center';
+  x.fillStyle = '#B7CFE3'; x.font = '600 24px Manrope'; spaced(x, 'LIVRO DE RECADOS', W / 2, 500, 9);
+  x.fillStyle = '#fff'; x.font = '500 150px "Cormorant Garamond"'; x.fillText(st.n1, W / 2, 760);
+  x.fillStyle = '#B7CFE3'; x.font = 'italic 500 112px "Cormorant Garamond"'; x.fillText('&', W / 2, 880);
+  x.fillStyle = '#fff'; x.font = '500 150px "Cormorant Garamond"'; x.fillText(st.n2, W / 2, 1030);
+  x.fillStyle = 'rgba(238,242,246,.78)'; x.font = '500 25px Manrope'; spaced(x, st.meta.toUpperCase(), W / 2, 1140, 4);
+  x.fillStyle = '#B7CFE3'; x.font = '600 54px Caveat'; x.fillText(`${n} recados de quem estava lá`, W / 2, 1430);
+  return c;
+}
+function bookPage(no) {
+  const [c, x] = bookCanvas(), W = BOOK.W, H = BOOK.H;
+  x.fillStyle = '#EEF1F4'; x.fillRect(0, 0, W, H);
+  x.textAlign = 'left'; x.fillStyle = '#1F3B5C'; x.font = '500 36px "Cormorant Garamond"';
+  x.fillText(`${st.n1} & ${st.n2}`, BOOK.M, 112);
+  x.fillStyle = '#93A0AD'; x.font = '600 18px Manrope'; spaced(x, 'LIVRO DE RECADOS', W - BOOK.M, 108, 5, 'right');
+  x.strokeStyle = '#D6DCE2'; x.lineWidth = 2; x.beginPath(); x.moveTo(BOOK.M, 140); x.lineTo(W - BOOK.M, 140); x.stroke();
+  x.textAlign = 'center'; x.fillStyle = '#93A0AD'; x.font = '500 22px Manrope'; x.fillText(String(no), W / 2, H - 70);
+  return [c, x];
+}
+function bookEnd(names, no) {
+  const [c, x] = bookPage(no), W = BOOK.W, maxW = W - 2 * BOOK.M - 60;
+  x.textAlign = 'center'; x.fillStyle = '#93A0AD'; x.font = '600 22px Manrope'; spaced(x, 'ESTE LIVRO FOI ESCRITO POR', W / 2, 400, 7);
+  x.fillStyle = '#1B2A3A'; x.font = 'italic 500 50px "Cormorant Garamond"';
+  const lines = []; let line = '';
+  names.forEach(n => { const t = line ? line + '  ·  ' + n : n; if (line && x.measureText(t).width > maxW) { lines.push(line); line = n; } else line = t; });
+  if (line) lines.push(line);
+  let y = 500; lines.forEach(l => { x.fillText(l, W / 2, y); y += 70; });
+  x.fillStyle = '#4F7FAB'; x.font = '600 52px Caveat'; x.fillText('e guardado com carinho por', W / 2, y + 110);
+  x.fillStyle = '#1F3B5C'; x.font = '500 80px "Cormorant Garamond"'; x.fillText(`${st.n1} & ${st.n2}`, W / 2, y + 220);
+  x.fillStyle = '#93A0AD'; x.font = '500 25px Manrope'; spaced(x, st.meta.toUpperCase(), W / 2, y + 290, 4);
+  return c;
+}
+function pdfFromJpegs(pages) {   // PDF mínimo: cada página é uma imagem JPEG (sem biblioteca)
+  const enc = new TextEncoder(), parts = [], offs = []; let pos = 0;
+  const add = d => { const b = typeof d === 'string' ? enc.encode(d) : d; parts.push(b); pos += b.length; };
+  const obj = (n, body) => { offs[n] = pos; add(`${n} 0 obj\n`); body(); add('\nendobj\n'); };
+  const PW = 419.53, PH = 595.28, n = pages.length, info = 3 + n * 3;
+  add('%PDF-1.4\n%\u00e2\u00e3\u00cf\u00d3\n');
+  obj(1, () => add('<< /Type /Catalog /Pages 2 0 R >>'));
+  obj(2, () => add(`<< /Type /Pages /Count ${n} /Kids [${pages.map((_, i) => `${3 + i * 3} 0 R`).join(' ')}] >>`));
+  pages.forEach((p, i) => {
+    const o = 3 + i * 3, cs = `q ${PW} 0 0 ${PH} 0 0 cm /Im0 Do Q`;
+    obj(o, () => add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im0 ${o + 2} 0 R >> >> /Contents ${o + 1} 0 R >>`));
+    obj(o + 1, () => add(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`));
+    obj(o + 2, () => { add(`<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.bytes.length} >>\nstream\n`); add(p.bytes); add('\nendstream'); });
+  });
+  obj(info, () => add(`<< /Title (Livro de recados - ${pdfAscii(st.n1)} e ${pdfAscii(st.n2)}) /Producer (Album dos convidados) >>`));
+  const xref = pos;
+  let t = `xref\n0 ${info + 1}\n0000000000 65535 f \n`;
+  for (let k = 1; k <= info; k++) t += String(offs[k]).padStart(10, '0') + ' 00000 n \n';
+  add(t + `trailer\n<< /Size ${info + 1} /Root 1 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+  return new Blob(parts, { type: 'application/pdf' });
+}
+async function makeBook() {
+  await fontsReady;
+  const items = bookItems();
+  await Promise.all(items.filter(it => it.photo).map(async it => {
+    const p = it.photo;
+    try { it.img = p.pol && p.local ? await loadImg(p.local) : miniPol(await loadImg(imgOf(p, 600, 600))); } catch (e) { it.img = null; }
+  }));
+  const mx = document.createElement('canvas').getContext('2d');
+  const top = 200, bottom = BOOK.H - 150, gap = 56, layout = []; let y = 0;
+  items.forEach(it => {
+    const m = measureCard(mx, it);
+    if (!layout.length || y + m.h > bottom) { layout.push([]); y = top; }
+    layout[layout.length - 1].push({ it, m, y }); y += m.h + gap;
+  });
+  // páginas cheias: espalha a sobra entre os cartões pra não ficar buraco embaixo
+  layout.forEach((pg, i) => {
+    if (i === layout.length - 1 || pg.length < 2) return;
+    const last = pg[pg.length - 1], extra = Math.min((bottom - (last.y + last.m.h)) / (pg.length - 1), 90);
+    pg.forEach((e, k) => { e.y += extra * k; });
+  });
+  const out = [];
+  const push = async c => { const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .9)); out.push({ blob, w: c.width, h: c.height }); c.width = c.height = 1; };
+  await push(bookCover(items.length));
+  let k = 0;
+  for (let i = 0; i < layout.length; i++) {
+    const [c, x] = bookPage(i + 2);
+    layout[i].forEach(e => {
+      const rot = [-1.1, .8, -.5, 1.2][k % 4];
+      const X = e.m.w < BOOK.W - 2 * BOOK.M ? (k % 2 ? BOOK.W - BOOK.M - 20 - e.m.w : BOOK.M + 20) : BOOK.M;
+      drawCard(x, e.it, e.m, X, e.y, rot); k++;
+    });
+    await push(c);
+  }
+  await push(bookEnd([...new Set(items.map(it => it.by))], layout.length + 2));
+  const pages = await Promise.all(out.map(async o => ({ bytes: new Uint8Array(await o.blob.arrayBuffer()), w: o.w, h: o.h })));
+  return { pdf: pdfFromJpegs(pages), previews: out.slice(0, 2).map(o => URL.createObjectURL(o.blob)), pages: out.length, n: items.length };
+}
+async function openBook() {
+  const name = `livro-de-recados-${slug(st.n1)}-${slug(st.n2)}.pdf`;
+  openSheet(`<h4>Livro de recados</h4><p>Todos os recados da festa num PDF pra guardar ou mandar imprimir, no tamanho A5.</p>
+    <div class="book-wrap"><div class="book-load">Montando o livro…</div></div>
+    <div class="share-actions"><button class="btn" id="bk-save" disabled>Baixar PDF</button><button class="btn alt" id="bk-share" hidden>Enviar</button></div>`);
+  try {
+    const b = await makeBook(); window.__book = b;
+    const wrap = $('.book-wrap'); if (!wrap) return;
+    wrap.innerHTML = b.previews.map(u => `<img src="${u}" alt="">`).join('')
+      + `<span class="book-info">${b.pages} páginas · ${b.n} recados · ${(b.pdf.size / 1048576).toFixed(1).replace('.', ',')} MB</span>`;
+    const url = URL.createObjectURL(b.pdf), file = new File([b.pdf], name, { type: 'application/pdf' });
+    $('#bk-save').disabled = false;
+    $('#bk-save').onclick = () => { const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); };
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      const sh = $('#bk-share'); sh.hidden = false;
+      sh.onclick = async () => { try { await navigator.share({ files: [file], title: 'Livro de recados' }); } catch (e) { /* cancelado */ } };
+    }
+  } catch (e) {
+    console.error(e);
+    const wrap = $('.book-wrap'); if (wrap) wrap.innerHTML = '<div class="book-load">Não deu pra montar o livro.</div>';
+  }
+}
+$('#btn-livro').addEventListener('click', openBook);
 
 /* ================= 6. RETROSPECTIVA ================= */
 let rIdx = 0, rTimer = null, rSlides = [], rData = null, rStart = 0, rRemain = 0, rHoldT = null, rHeld = false;
