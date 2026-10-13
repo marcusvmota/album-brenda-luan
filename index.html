@@ -131,6 +131,30 @@ img{display:block}
 #filters .chip.on{background:none;color:var(--ink)}
 #filters .chip::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:2px;background:var(--ink);transform:scaleX(0);transition:transform .25s ease}
 #filters .chip.on::after{transform:scaleX(1)}
+.notes-cta{display:flex;align-items:center;gap:12px;width:calc(100% - 28px);margin:12px 14px 8px;padding:13px 15px;border-radius:16px;background:#fff;border:1px dashed rgba(31,58,92,.35);text-align:left;color:var(--ink)}
+.notes-cta[hidden]{display:none!important}
+.notes-cta .ic{width:40px;height:40px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notes-cta .ic svg{width:19px;height:19px}
+.notes-cta .t b{display:block;font-size:14.5px;font-weight:700}
+.notes-cta .t small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.card.note .paper{position:relative;background:#FBFAF7;padding:20px 14px 12px;border-radius:3px;box-shadow:0 6px 14px rgba(22,43,69,.14);transform:rotate(var(--rot));font-family:"Caveat",cursive;color:#26364A;margin-top:6px}
+.card.note .paper::before{content:"";position:absolute;top:-7px;left:50%;width:54px;height:17px;margin-left:-27px;background:rgba(156,192,222,.6);transform:rotate(-3deg)}
+.card.note p{font-size:21px;line-height:1.08;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.card.note .sig{display:block;text-align:right;font-size:18px;color:#4F7FAB;margin-top:6px;line-height:1}
+.card.note .by .when{font-weight:500;color:var(--muted)}
+.note-big{position:relative;background:#FBFAF7;padding:24px 20px 16px;margin:8px 2px 16px;box-shadow:0 8px 22px rgba(22,43,69,.14);transform:rotate(-1deg);font-family:"Caveat",cursive;color:#26364A}
+.note-big::before{content:"";position:absolute;top:-8px;left:50%;width:64px;height:19px;margin-left:-32px;background:rgba(156,192,222,.6);transform:rotate(-3deg)}
+.sheet .note-big p{font-size:29px;line-height:1.1;overflow-wrap:anywhere;color:#26364A;font-family:"Caveat",cursive}
+.note-big span{display:block;text-align:right;font-size:25px;color:#4F7FAB;margin-top:10px}
+.note-meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+.note-meta .heart{font-size:14px}
+.note-meta .heart svg{width:20px;height:20px}
+.note-compose{margin:16px 0 14px}
+.note-compose textarea{resize:none;min-height:132px;line-height:1.15;display:block}
+.note-foot{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--muted);margin-top:6px}
+.note-foot span:first-child{font-family:"Caveat",cursive;font-size:21px;color:#4F7FAB}
+@media (max-width:360px){.filters{gap:17px}}
+.fab-tip.hide{display:none}
 .masonry{columns:2;column-gap:10px;padding:4px 14px calc(var(--sab) + 100px)}
 .card{break-inside:avoid;margin-bottom:12px;cursor:pointer}
 .card .ph{position:relative;border-radius:12px;overflow:hidden;background:var(--sand)}
@@ -571,7 +595,7 @@ img{display:block}
           <div class="kick live"><i></i><span id="count"></span></div>
           <div class="filters" id="filters"></div>
         </div>
-        <div class="scroll"><div class="masonry" id="masonry"></div></div>
+        <div class="scroll"><button class="notes-cta" id="notes-cta" hidden><span class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14.5 7.5l2 2"/></svg></span><span class="t"><b>Escreva um recadinho pros noivos</b><small>Não precisa de foto. Vai direto pra eles.</small></span></button><div class="masonry" id="masonry"></div></div>
         <div class="mural-fade"></div>
         <span class="fab-tip" id="fab-tip">Toque para mandar sua foto</span>
         <button class="fab" data-go="enviar" aria-label="Mandar foto ou polaroid">
@@ -728,7 +752,7 @@ document.getElementById('frame').src = FRAMES.azul;
 
 /* ================= DADOS DE EXEMPLO ================= */
 const U = (id, w, h) => `https://images.unsplash.com/photo-${id}?w=${w}${h ? `&h=${h}&fit=crop` : ''}&q=72&auto=format`;
-const MOMENTS = ['Cerimônia', 'Festa', 'Pista'];
+const MOMENTS = ['Cerimônia', 'Festa'];
 
 // [unsplash id, momento, quem, recado, altura no mural, tipo: 'pol' | 'video' | undefined]
 const SEED = [
@@ -736,22 +760,22 @@ const SEED = [
   ['1465495976277-4387d4b0b4c6','Cerimônia','Tio Marcos','Agora é pra sempre!',400],
   ['1519741497674-611481863552','Festa','Carol','',600],
   ['1583939003579-730e3918a45a','Festa','Rafael','Chuva de pétalas!!!',560,'pol'],
-  ['1527529482837-4698179dc6ce','Pista','Bia','Brindando a vocês',420,'pol'],
+  ['1527529482837-4698179dc6ce','Festa','Bia','Brindando a vocês',420,'pol'],
   ['1515934751635-c81c6bc9a2d8','Cerimônia','Vó Lurdes','As alianças mais lindas',460],
   ['1591604466107-ec97de577aff','Festa','Fernanda','Que casal, gente',600],
-  ['1516997121675-4c2d1684aa3e','Pista','Gustavo','A pista não parou!',400,'video'],
+  ['1516997121675-4c2d1684aa3e','Festa','Gustavo','Que festa, gente!',400,'video'],
   ['1519225421980-715cb0215aed','Festa','Patrícia','Cada detalhe pensado com carinho',480],
   ['1520854221256-17451cc331bf','Cerimônia','Lucas','',540],
   ['1529636798458-92182e662485','Cerimônia','Camila','Chorei do começo ao fim',600,'pol'],
   ['1501901609772-df0848060b33','Festa','Amanda','Felicidades eternas!',460],
   ['1537633552985-df8429e8048b','Festa','Diego','',580],
-  ['1519671482749-fd09be7ccebf','Pista','Thiago','Saúde aos noivos!',440,'pol'],
+  ['1519671482749-fd09be7ccebf','Festa','Thiago','Saúde aos noivos!',440,'pol'],
   ['1530023367847-a683933f4172','Festa','Mariana','',420],
   ['1546032996-6dfacbacbf3f','Festa','Paulo e Rita','Que Deus abençoe essa união',560],
 ];
 const INCOMING = [
   ['1606216794074-735e91aa2c92','Festa','Letícia','Vocês são inspiração',580,'pol'],
-  ['1532635241-17e820acc59f','Pista','Renata','As amigas da noiva chegaram!',460],
+  ['1532635241-17e820acc59f','Festa','Renata','As amigas da noiva chegaram!',460],
   ['1469371670807-013ccf25f16a','Cerimônia','Eduardo','A entrada mais linda',540,'pol'],
   ['1460978812857-470ed1c77af0','Festa','Sofia','Amo vocês dois',600],
   ['1494955870715-979ca4f13bf0','Festa','Henrique','',480],
@@ -760,6 +784,20 @@ const INCOMING = [
   ['1550005809-91ad75fb315f','Festa','Aline','',600],
 ];
 const COMMENT_POOL = [['Carol','Que foto linda!'],['Rafael','Melhor casamento do ano'],['Vó Lurdes','Meus netos queridos ❤️'],['Bia','Quero essa no porta-retrato'],['Lucas','Que momento!']];
+
+// recadinhos: só texto, sem foto
+const NOTE_SEED = [
+  ['Vó Lurdes', 'Que Deus abençoe a casa que vocês vão construir. Amo vocês, meus netos.', 6, 24],
+  ['Diego', 'Não tirei nenhuma foto porque passei a cerimônia inteira chorando. Amo vocês!', 9, 17],
+  ['Paulo e Rita', '32 anos de casados e um conselho só: nunca durmam brigados. Felicidades!', 14, 21],
+  ['Juliana', 'Obrigada por deixarem a gente fazer parte desse dia. Vocês são lindos demais.', 22, 12],
+  ['Tio Marcos', 'Luan, cuida bem dela. Brenda, cuida bem dele. E os dois: cuidem da amizade de vocês.', 31, 19],
+  ['Fernanda', 'Que a vida de vocês seja leve como essa noite.', 40, 9],
+  ['Rafael', 'Brenda, você tava maravilhosa. Luan, você deu muita sorte kkkk', 48, 15],
+  ['Camila', 'Vi esse amor nascer e hoje vi ele virar família.', 57, 26],
+];
+let nid = 0;
+let notes = NOTE_SEED.map(([by, text, mins, likes]) => ({ id: ++nid, by, text, mins, likes, liked: false, mine: false, hidden: false }));
 
 let uid = 0;
 const mk = ([id, moment, by, caption, h, kind], i = 0) => ({
@@ -786,7 +824,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 /* ================= NAVEGAÇÃO ================= */
 const SCREENS = [
   ['entrada', 'Entrada', 'O convidado lê o QR code da plaquinha da mesa e só digita o nome.', 'guest'],
-  ['mural', 'Mural ao vivo', 'Fotos e polaroids de todos aparecem na hora. Dá pra curtir e filtrar por momento.', 'guest'],
+  ['mural', 'Mural ao vivo', 'Fotos e polaroids de todos aparecem na hora. Dá pra curtir, filtrar por momento e deixar recadinhos.', 'guest'],
   ['enviar', 'Enviar foto', 'Tira na hora ou escolhe da galeria. Opcional: virar polaroid com filtro analógico e recado à mão.', 'guest'],
   ['foto', 'Foto e story', 'Curtidas, comentários e o botão Story: a foto sai com a moldura do casamento pro Instagram.', 'guest'],
   ['retro', 'Retrospectiva do convidado', 'No dia seguinte: a história do dia contada pelas fotos, e uma carta dos noivos para cada convidado.', 'guest'],
@@ -1049,12 +1087,43 @@ $('#guest-name').addEventListener('keydown', e => { if (e.key === 'Enter' && !$(
 $('#btn-enter').addEventListener('click', () => { guest = $('#guest-name').value.trim(); go('mural'); });
 
 /* ================= 2. MURAL ================= */
-$('#filters').innerHTML = ['Tudo', ...MOMENTS, 'Polaroids'].map(f => `<button class="chip ${f === filter ? 'on' : ''}" data-f="${f}">${f}</button>`).join('');
+$('#filters').innerHTML = ['Tudo', ...MOMENTS, 'Recadinhos', 'Polaroids'].map(f => `<button class="chip ${f === filter ? 'on' : ''}" data-f="${f}">${f}</button>`).join('');
 $('#filters').addEventListener('click', e => {
   const b = e.target.closest('[data-f]'); if (!b) return;
   filter = b.dataset.f;
   $$('#filters .chip').forEach(c => c.classList.toggle('on', c === b));
+  b.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+  $('#s-mural .scroll').scrollTop = 0;
   renderMural();
+});
+function setFilter(f) { filter = f; $$('#filters .chip').forEach(c => { c.classList.toggle('on', c.dataset.f === f); if (c.dataset.f === f) c.scrollIntoView({ inline: 'nearest', block: 'nearest' }); }); }
+
+/* ---------- recadinhos ---------- */
+function openNote(n) {
+  openSheet(`<div class="note-big"><p>${esc(n.text)}</p><span>— ${esc(n.by)}</span></div>
+    <div class="note-meta"><span>Recadinho · ${whenOf(n.mins)}</span><button class="heart ${n.liked ? 'on' : ''}" data-nlike="${n.id}" id="note-like">${heartSvg}${n.likes}</button></div>`);
+  $('#note-like').onclick = () => { toggleNoteLike(n); syncNoteHeart(n, n.liked); };
+}
+function openNoteComposer() {
+  const who = guest && guest !== 'Convidado' ? guest : 'Você';
+  openSheet(`<h4>Deixe um recadinho</h4><p>Não precisa de foto. Vai direto pros noivos e fica guardado no álbum deles.</p>
+    <div class="note-compose"><textarea class="input hand" id="note-text" maxlength="280" rows="4" placeholder="Escreva aqui o que você quer dizer pra eles…"></textarea>
+    <div class="note-foot"><span>— ${esc(who)}</span><span id="note-count">0/280</span></div></div>
+    <button class="btn" id="note-send" disabled>Deixar recadinho</button>`);
+  const ta = $('#note-text');
+  ta.addEventListener('input', () => { $('#note-count').textContent = `${ta.value.length}/280`; $('#note-send').disabled = ta.value.trim().length < 2; });
+  $('#note-send').onclick = () => {
+    const n = { id: ++nid, by: who, text: ta.value.trim(), mins: 0, likes: 0, liked: false, mine: true, hidden: false };
+    notes.unshift(n); closeSheet();
+    setFilter('Recadinhos'); $('#s-mural .scroll').scrollTop = 0; renderMural(null, n.id);
+    toast('Seu recadinho chegou pros noivos 💙');
+  };
+  if (matchMedia('(hover: hover)').matches) setTimeout(() => ta.focus(), 350);
+}
+$('#notes-cta').addEventListener('click', openNoteComposer);
+$('.fab').addEventListener('click', e => {
+  if (!$('.fab').classList.contains('note-mode')) return;
+  e.stopPropagation(); openNoteComposer();
 });
 
 const heartSvg = '<svg class="icon" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
@@ -1076,8 +1145,33 @@ function visible() {
   return photos.filter(p => !p.hidden && !p.pending &&
     (filter === 'Tudo' || (filter === 'Polaroids' ? p.pol : p.moment === filter)));
 }
-function renderMural(freshId) {
-  $('#masonry').innerHTML = visible().map(p => cardHTML(p, p.id === freshId)).join('');
+const penSvg = '<svg class="icon" viewBox="0 0 24 24"><path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14.5 7.5l2 2"/></svg>';
+const camSvg = '<svg class="icon" viewBox="0 0 24 24"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.6l1.4-2h7l1.4 2h1.6A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg>';
+const whenOf = m => m ? `há ${m} min` : 'agora';
+function noteHTML(n, fresh) {
+  return `<div class="card note ${fresh ? 'new-in' : ''}" data-note="${n.id}" style="--rot:${(((n.id * 53) % 5) - 2) * .8}deg">
+    <div class="paper"><p>${esc(n.text)}</p><span class="sig">— ${esc(n.by)}</span></div>
+    <div class="by"><span class="when">${whenOf(n.mins)}</span><button class="heart ${n.liked ? 'on' : ''}" data-nlike="${n.id}">${heartSvg}${n.likes}</button></div>
+  </div>`;
+}
+function renderMural(freshId, freshNote) {
+  const ns = notes.filter(n => !n.hidden);
+  let items;
+  if (filter === 'Recadinhos') items = ns.map(n => noteHTML(n, n.id === freshNote));
+  else {
+    items = visible().map(p => cardHTML(p, p.id === freshId));
+    // no "Tudo", alguns recadinhos aparecem no meio das fotos
+    if (filter === 'Tudo') ns.slice(0, 3).forEach((n, k) => items.splice(Math.min(items.length, 3 + k * 6), 0, noteHTML(n, n.id === freshNote)));
+  }
+  $('#masonry').innerHTML = items.join('');
+  $('#notes-cta').hidden = filter !== 'Recadinhos';
+  const fab = $('.fab'), noteMode = filter === 'Recadinhos';
+  if (fab.classList.contains('note-mode') !== noteMode) {
+    fab.classList.toggle('note-mode', noteMode);
+    fab.querySelector('.core').innerHTML = noteMode ? penSvg : camSvg;
+    fab.setAttribute('aria-label', noteMode ? 'Escrever um recadinho' : 'Mandar foto ou polaroid');
+    $('#fab-tip').classList.toggle('hide', noteMode);
+  }
   const people = new Set(photos.filter(p => !p.hidden).map(p => p.by)).size + 49;
   $('#count').textContent = `${photos.filter(p => !p.hidden).length + 1300} fotos · ${people} pessoas · ao vivo`;
   if (!tipShown && current === 'mural') {
@@ -1098,7 +1192,28 @@ function burst(host) {
   host.appendChild(b); setTimeout(() => b.remove(), 1000);
 }
 function likeOnly(p) { if (!p.liked) { p.liked = true; p.likes++; } }
+function syncNoteHeart(n, pop) {
+  $$(`[data-nlike="${n.id}"]`).forEach(h => {
+    h.classList.toggle('on', n.liked); h.innerHTML = heartSvg + n.likes;
+    if (pop) { h.classList.remove('pop'); void h.offsetWidth; h.classList.add('pop'); }
+  });
+}
+function toggleNoteLike(n) { n.liked = !n.liked; n.likes += n.liked ? 1 : -1; }
 $('#masonry').addEventListener('click', e => {
+  const nl = e.target.closest('[data-nlike]');
+  if (nl) { e.stopPropagation(); const n = notes.find(x => x.id === +nl.dataset.nlike); toggleNoteLike(n); syncNoteHeart(n, n.liked); return; }
+  const nc = e.target.closest('[data-note]');
+  if (nc) {
+    const key = 'n' + nc.dataset.note, n = notes.find(x => x.id === +nc.dataset.note), now = Date.now();
+    if (lastTap.id === key && now - lastTap.t < 320) {
+      clearTimeout(tapTimer); lastTap = { id: 0, t: 0 };
+      if (!n.liked) { n.liked = true; n.likes++; } syncNoteHeart(n, true); burst(nc.querySelector('.paper'));
+      return;
+    }
+    lastTap = { id: key, t: now }; clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => openNote(n), 260);
+    return;
+  }
   const l = e.target.closest('[data-like]');
   if (l) { e.stopPropagation(); const p = photos.find(x => x.id === +l.dataset.like); toggleLike(p.id); syncHeart(p, p.liked); return; }
   const c = e.target.closest('[data-open]'); if (!c) return;
@@ -1491,7 +1606,7 @@ function fotoHeart(p, pop) {
 }
 
 /* ================= 5. ÁLBUM ================= */
-const TOTALS = { 'Cerimônia': 312, 'Festa': 684, 'Pista': 391 };
+const TOTALS = { 'Cerimônia': 312, 'Festa': 1075 };
 function renderAlbum() {
   $('#rc-img').style.backgroundImage = `url(${U('1591604466107-ec97de577aff', 160, 200)})`;
   const vis = photos.filter(p => !p.hidden && !p.pending);
@@ -1537,14 +1652,15 @@ function downloadSheet(title, rows, total) {
   };
 }
 $('#btn-dl-all').addEventListener('click', () => downloadSheet('Baixar o álbum completo',
-  [['Cerimônia', '312 fotos · 1,3 GB'], ['Festa', '684 fotos · 2,9 GB'], ['Pista', '391 fotos · 1,6 GB'], ['Polaroids', '214 · com moldura + original'], ['Vídeos', '26 vídeos · 1,8 GB']], '7,9 GB'));
+  [['Cerimônia', '312 fotos · 1,3 GB'], ['Festa', '1.075 fotos · 4,5 GB'], ['Polaroids', '214 · com moldura + original'], ['Vídeos', '26 vídeos · 1,8 GB']], '7,9 GB'));
 $('#btn-dl-rev').addEventListener('click', () => {
   const n = photos.filter(p => p.rev && !p.hidden).length;
   downloadSheet('Fotos para revelar', [['Separadas por vocês', `${n} fotos`], ['Formato', 'JPG, pronto para a gráfica']], `${(n * 4.2).toFixed(0)} MB`);
 });
 $('#btn-recados').addEventListener('click', () => {
-  const rec = photos.filter(p => p.caption && !p.hidden && !p.pending);
-  openSheet(`<h4>Recados</h4><p>${rec.length} recados deixados junto com as fotos.</p><div style="margin-top:10px">${rec.map(p => `<div class="recado"><q>${esc(p.caption)}</q><span>${esc(p.by)} · ${p.moment}</span></div>`).join('')}</div>`);
+  const rec = notes.filter(n => !n.hidden).map(n => ({ t: n.text, by: n.by, where: 'Recadinho' }))
+    .concat(photos.filter(p => p.caption && !p.hidden && !p.pending).map(p => ({ t: p.caption, by: p.by, where: `Na foto · ${p.moment}` })));
+  openSheet(`<h4>Recados</h4><p>${rec.length} recados: os recadinhos e os que vieram junto com as fotos.</p><div style="margin-top:10px">${rec.map(x => `<div class="recado"><q>${esc(x.t)}</q><span>${esc(x.by)} · ${x.where}</span></div>`).join('')}</div>`);
 });
 
 /* ================= 6. RETROSPECTIVA ================= */
@@ -1600,12 +1716,12 @@ function buildRetro(d) {
       ${ln('No meio da festa, vocês pararam pra escrever <em>96 recados.</em>', .6, 'div', 'r-quote')}
       <div class="r-notes">${d.notes.map((p, k) => `<div class="r-note ln" style="--d:${1.9 + k * 1.3}s">${esc(p.caption)}<span>${esc(p.by)}</span></div>`).join('')}</div>
       </div>` },
-    // 5. a pista
-    { ms: 7000, html: `<div class="r-slide"><div class="r-bg" style="background-image:url(${U('1516997121675-4c2d1684aa3e', 1000)})"></div><div class="r-shade"></div>
+    // 5. o brinde
+    { ms: 7000, html: `<div class="r-slide"><div class="r-bg" style="background-image:url(${U('1527529482837-4698179dc6ce', 1000)})"></div><div class="r-shade"></div>
       <div class="r-bottom">
-        ${ln('23h47', .2, 'div', 'r-kick')}
-        ${ln('E aí a pista abriu.', .6, 'div', 'r-h')}
-        ${ln('Foi o minuto mais fotografado da noite. Ninguém ficou sentado.', 1.8, 'p', 'r-p')}
+        ${ln('21h30 · O brinde', .2, 'div', 'r-kick')}
+        ${ln('E aí todo mundo levantou o copo.', .6, 'div', 'r-h')}
+        ${ln('Foi o minuto mais fotografado da noite. Ninguém ficou de fora.', 1.8, 'p', 'r-p')}
         ${ln('Nem a vó.', 3.2, 'div', 'r-hand')}
       </div></div>` },
     // 6. o que os noivos não viram
@@ -1684,7 +1800,7 @@ function buildRetroCouple(d) {
         ${ln('02h14 · A última foto', .2, 'div', 'r-kick')}
         ${ln('A última foto da noite foi às 2h14.', .7, 'div', 'r-h')}
         ${ln('Vocês já tinham ido embora.', 2.2, 'p', 'r-p')}
-        ${ln('A pista, não.', 3.4, 'div', 'r-hand')}
+        ${ln('A festa, não.', 3.4, 'div', 'r-hand')}
       </div></div>` },
     { ms: 13000, html: `<div class="r-slide">
       ${ln('Este álbum foi feito por', .2, 'div', 'r-kick')}
