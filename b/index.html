@@ -139,7 +139,7 @@ img{display:block}
 .notes-cta .t small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
 .card.note .paper{position:relative;background:#FBFAF7;padding:20px 14px 12px;border-radius:3px;box-shadow:0 6px 14px rgba(22,43,69,.14);transform:rotate(var(--rot));font-family:"Caveat",cursive;color:#26364A;margin-top:6px}
 .card.note .paper::before{content:"";position:absolute;top:-7px;left:50%;width:54px;height:17px;margin-left:-27px;background:rgba(156,192,222,.6);transform:rotate(-3deg)}
-.card.note p{font-size:21px;line-height:1.08;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.card.note p{font-size:21px;line-height:1.08;overflow-wrap:anywhere}
 .card.note .sig{display:block;text-align:right;font-size:18px;color:#4F7FAB;margin-top:6px;line-height:1}
 .card.note .by .when{font-weight:500;color:var(--muted)}
 .note-big{position:relative;background:#FBFAF7;padding:24px 20px 16px;margin:8px 2px 16px;box-shadow:0 8px 22px rgba(22,43,69,.14);transform:rotate(-1deg);font-family:"Caveat",cursive;color:#26364A}
@@ -152,6 +152,9 @@ img{display:block}
 .note-compose{margin:16px 0 14px}
 .note-compose textarea{resize:none;min-height:132px;line-height:1.15;display:block}
 .note-foot{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--muted);margin-top:6px}
+.note-foot #note-count{font-variant-numeric:tabular-nums;font-weight:600;transition:color .2s}
+.note-foot #note-count.warn{color:#C08A2B}
+.note-foot #note-count.end{color:#C0533B}
 .note-foot span:first-child{font-family:"Caveat",cursive;font-size:21px;color:#4F7FAB}
 @media (max-width:360px){.filters{gap:17px}}
 .fab-tip.hide{display:none}
@@ -1104,14 +1107,15 @@ function openNote(n) {
     <div class="note-meta"><span>Recadinho · ${whenOf(n.mins)}</span><button class="heart ${n.liked ? 'on' : ''}" data-nlike="${n.id}" id="note-like">${heartSvg}${n.likes}</button></div>`);
   $('#note-like').onclick = () => { toggleNoteLike(n); syncNoteHeart(n, n.liked); };
 }
+const NOTE_MAX = 144;
 function openNoteComposer() {
   const who = guest && guest !== 'Convidado' ? guest : 'Você';
   openSheet(`<h4>Deixe um recadinho</h4><p>Não precisa de foto. Vai direto pros noivos e fica guardado no álbum deles.</p>
-    <div class="note-compose"><textarea class="input hand" id="note-text" maxlength="280" rows="4" placeholder="Escreva aqui o que você quer dizer pra eles…"></textarea>
-    <div class="note-foot"><span>— ${esc(who)}</span><span id="note-count">0/280</span></div></div>
+    <div class="note-compose"><textarea class="input hand" id="note-text" maxlength="${NOTE_MAX}" rows="4" placeholder="Escreva aqui o que você quer dizer pra eles…"></textarea>
+    <div class="note-foot"><span>— ${esc(who)}</span><span id="note-count">${NOTE_MAX}</span></div></div>
     <button class="btn" id="note-send" disabled>Deixar recadinho</button>`);
   const ta = $('#note-text');
-  ta.addEventListener('input', () => { $('#note-count').textContent = `${ta.value.length}/280`; $('#note-send').disabled = ta.value.trim().length < 2; });
+  ta.addEventListener('input', () => { const left = NOTE_MAX - ta.value.length; const c = $('#note-count'); c.textContent = left; c.classList.toggle('warn', left <= 20); c.classList.toggle('end', left <= 0); $('#note-send').disabled = ta.value.trim().length < 2; });
   $('#note-send').onclick = () => {
     const n = { id: ++nid, by: who, text: ta.value.trim(), mins: 0, likes: 0, liked: false, mine: true, hidden: false };
     notes.unshift(n); closeSheet();
