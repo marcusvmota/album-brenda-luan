@@ -1,0 +1,14 @@
+{
+  "name": "Brenda & Luan · Álbum dos convidados",
+  "short_name": "Brenda & Luan",
+  "description": "Fotografe, escreva, guarde com a gente.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0E1826",
+  "theme_color": "#EEF1F4",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
