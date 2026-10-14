@@ -1,0 +1,1 @@
+var e={n1:`Brenda`,n2:`Luan`,meta:`06 de março · Espaço Imbituba`,capa:`https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=1100&q=72&auto=format`},t=`noivos@brendaeluan.app`,n=`2027-03-07T10:00:00-03:00`,r=`https://marcusvmota.github.io/album-brenda-luan/`;export{n as i,e as n,r,t};
