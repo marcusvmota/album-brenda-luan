@@ -13,8 +13,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --cream:#EEF1F4; --paper:#F8FAFB; --ink:#17263A; --muted:#67727E; --line:#DCE2E8;
-  --sage:#B7CFE3; --sand:#CDD4DB; --navy:#1F3B5C; --navy-2:#122033; --gold:#C79A5B; --gold-2:#A97F3F;
+  --cream:#F5F2EC; --paper:#FBFAF7; --ink:#17263A; --muted:#6E6A64; --line:#E5DFD5;
+  --sage:#B7CFE3; --sand:#D3CBBE; --navy:#1F3B5C; --navy-2:#122033; --gold:#C79A5B; --gold-2:#A97F3F;
   --warn:#C0533B;
   --serif:"Cormorant Garamond", Georgia, serif; --sans:"Manrope", system-ui, sans-serif; 
 }
@@ -39,6 +39,7 @@ a{color:inherit}
 .kick::before,.kick::after{content:"";width:26px;height:1px;background:var(--gold)}
 .hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(48px,11vw,76px);line-height:.98;margin-top:16px;color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.35)}
 .hero h1 i{font-style:italic;color:var(--gold);font-weight:500;padding:0 .04em}
+.hero-date{display:block;margin-top:14px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.9);font-weight:600;text-shadow:0 1px 10px rgba(0,0,0,.45)}
 .hero .sub{font-family:var(--serif);font-style:italic;font-size:clamp(19px,3vw,23px);color:rgba(255,255,255,.88);margin-top:12px;text-shadow:0 1px 12px rgba(0,0,0,.4)}
 .hero-ctas{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:32px}
 .cta{height:50px;padding:0 34px;border-radius:999px;background:#fff;color:var(--navy);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;display:inline-flex;align-items:center;gap:10px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);transition:transform .2s}
@@ -46,8 +47,41 @@ a{color:inherit}
 .cta .ico{width:14px;height:14px}
 .cta-link{font-size:13px;color:rgba(255,255,255,.88);text-decoration:underline;text-underline-offset:5px;text-decoration-color:rgba(199,154,91,.8);min-height:44px;padding:0 14px;display:inline-flex;align-items:center}
 
+/* ============ RECADO DOS NOIVOS ============ */
+.recado{max-width:880px;margin:0 auto;padding:56px 24px 8px;display:grid;grid-template-columns:1fr;gap:30px;align-items:center;text-align:center}
+.recado-foto{justify-self:center;width:min(250px,66vw);background:#fff;padding:9px 9px 34px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(60,45,25,.05),0 18px 34px -22px rgba(60,45,25,.45);transform:rotate(-2deg);position:relative}
+.recado-foto img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.recado-foto figcaption{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-family:var(--serif);font-style:italic;font-size:15px;color:var(--muted)}
+.recado-txt small{display:inline-flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
+.recado-txt small::before,.recado-txt small::after{content:"";width:22px;height:1px;background:var(--gold)}
+.recado-txt p{font-family:var(--serif);font-size:clamp(21px,5.4vw,25px);line-height:1.4;color:var(--navy);margin-top:16px;font-weight:500}
+.recado-txt .ass{display:block;margin-top:16px;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--gold-2)}
+@media (min-width:760px){
+  .recado{grid-template-columns:300px 1fr;gap:56px;text-align:left;padding-top:72px}
+  .recado-foto{width:100%}
+  .recado-txt small::after{display:none}
+}
+
+/* ============ DATA E LOCAL ============ */
+.evento{max-width:880px;margin:40px auto 0;padding:0 20px}
+.ev-card{display:flex;gap:20px;align-items:stretch;background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px}
+.ev-date{flex-shrink:0;width:96px;border-radius:13px;background:var(--navy);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 6px;text-align:center;position:relative;overflow:hidden}
+.ev-date::before{content:"";position:absolute;width:140px;height:140px;right:-70px;top:-70px;background:radial-gradient(circle,rgba(199,154,91,.35),transparent 65%)}
+.ev-date small{position:relative;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.75);font-weight:700}
+.ev-date b{position:relative;font-family:var(--serif);font-size:46px;font-weight:500;line-height:1;color:var(--gold);margin:4px 0 2px}
+.ev-info{flex:1;min-width:0;padding:6px 4px 4px 0;display:flex;flex-direction:column;gap:3px}
+.ev-info .caps{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
+.ev-info h3{font-family:var(--serif);font-weight:500;font-size:22px;line-height:1.15;color:var(--navy);margin-top:2px}
+.ev-info p{font-size:13px;color:var(--muted);line-height:1.45}
+.ev-count{display:inline-flex;align-self:flex-start;margin-top:6px;font-size:11px;font-weight:700;color:var(--navy);background:var(--cream);border-radius:999px;padding:5px 11px}
+.ev-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.ev-btn{min-height:44px;border-radius:999px;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--navy);text-decoration:none;background:#fff;transition:border-color .2s,background .2s}
+.ev-btn:hover{border-color:var(--navy)}
+.ev-btn .ico{width:13px;height:13px}
+@media (max-width:420px){ .ev-card{flex-direction:column} .ev-date{width:auto;flex-direction:row;gap:12px;padding:12px} .ev-date b{font-size:34px;margin:0} .ev-info{padding:4px 6px 6px} }
+
 /* ============ COMO FUNCIONA — faixa compacta ============ */
-.how{background:#fff;border-bottom:1px solid var(--line)}
+.how{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:48px}
 .how-grid{display:grid;grid-template-columns:repeat(3,1fr);max-width:1080px;margin:0 auto}
 .how-step{padding:20px 10px 22px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:7px}
 .how-step+.how-step{border-left:1px solid var(--line)}
@@ -71,26 +105,28 @@ a{color:inherit}
 .shine::after{content:"";position:absolute;top:0;bottom:0;left:0;width:55%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:translateX(-160%) skewX(-12deg);animation:shimmer 3.4s ease-in-out infinite}
 @keyframes shimmer{0%,55%{transform:translateX(-160%) skewX(-12deg)}75%{transform:translateX(220%) skewX(-12deg)}100%{transform:translateX(220%) skewX(-12deg)}}
 
-/* ============ CATEGORIAS ============ */
-.cats{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;margin:30px -20px 4px;padding:4px 20px 8px;scroll-padding:0 20px}
+/* ============ CATEGORIAS: abas de texto (fixas ao rolar a lista) ============ */
+.tabs-bar{position:sticky;top:0;z-index:20;margin:0 -20px;padding:0 20px;background:rgba(245,242,236,.92);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line)}
+.editor .tabs-bar{top:48px}
+.cats{display:flex;gap:26px;overflow-x:auto;scrollbar-width:none;max-width:1080px;margin:0 auto}
 .cats::-webkit-scrollbar{display:none}
-.cat-tile{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:9px;width:84px;cursor:pointer;opacity:.78;transition:opacity .2s,transform .2s}
-.cat-tile.on,.cat-tile:hover{opacity:1}
-.cat-tile:hover{transform:translateY(-2px)}
-.cat-ph{position:relative;width:72px;height:72px;border-radius:50%;overflow:hidden;background:#fff center/cover;border:1px solid var(--line);transition:border-color .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center;color:var(--navy)}
-.cat-ph .ico{width:22px;height:22px}
-.cat-tile.on .cat-ph{border:1.5px solid var(--gold);box-shadow:0 0 0 4px rgba(199,154,91,.16)}
-.cat-check{display:none!important}
-.cat-tile span{font-size:11.5px;font-weight:600;text-align:center;line-height:1.2;color:var(--muted)}
-.cat-tile.on span{color:var(--ink);font-weight:700}
+@media (max-width:760px){ .cats{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent);padding-right:40px} }
+.tab{flex-shrink:0;position:relative;min-height:50px;display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--muted);transition:color .2s;white-space:nowrap}
+.tab sup{font-size:9.5px;letter-spacing:0;font-weight:600;color:var(--sand);top:0;transition:color .2s}
+.tab::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.tab:hover{color:var(--navy)}
+.tab.on{color:var(--navy)}
+.tab.on sup{color:var(--gold-2)}
+.tab.on::after{transform:scaleX(1)}
 
 /* ============ GRID ============ */
-.count-row{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 16px}
+.count-row{display:flex;justify-content:space-between;align-items:baseline;margin:34px 0 10px}
+.count-row h2{font-size:28px!important}
 .count-row h2{font-family:var(--serif);font-weight:500;font-size:25px;color:var(--navy)}
 .count-row span{font-size:12.5px;color:var(--navy);font-weight:700}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:22px;padding-bottom:30px}
 /* card delicado: moldura fina tipo passe-partout, sem caixa pesada */
-.card{--mx:50%;--my:50%;position:relative;cursor:pointer;display:flex;flex-direction:column;background:#fff;border:1px solid rgba(31,59,92,.09);border-radius:16px;padding:7px;box-shadow:0 1px 2px rgba(17,32,51,.03);transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s}
+.card{--mx:50%;--my:50%;position:relative;cursor:pointer;display:flex;flex-direction:column;background:#fff;border:1px solid rgba(120,100,70,.12);border-radius:16px;padding:7px;box-shadow:0 1px 2px rgba(17,32,51,.03);transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s}
 .card::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(220px circle at var(--mx) var(--my), rgba(199,154,91,.10), transparent 65%);opacity:0;transition:opacity .3s;pointer-events:none;z-index:3}
 .card:hover::before{opacity:1}
 .card:hover{transform:translateY(-3px);border-color:rgba(199,154,91,.35);box-shadow:0 14px 30px -18px rgba(17,32,51,.35)}
@@ -216,6 +252,7 @@ a{color:inherit}
   <div class="hero-in">
     <span class="kick">Chá de panela</span>
     <h1>Brenda <i>&amp;</i> Luan</h1>
+    <span class="hero-date">12 de dezembro · Imbituba</span>
     <div class="hero-ctas">
       <button class="cta" id="cta-lista">Ver a lista de presentes
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
@@ -224,6 +261,31 @@ a{color:inherit}
     </div>
   </div>
 </header>
+
+<section class="recado">
+  <figure class="recado-foto"><img src="img/casal.jpg" alt="Brenda e Luan"><figcaption>Brenda &amp; Luan</figcaption></figure>
+  <div class="recado-txt">
+    <small>Um recado nosso</small>
+    <p>Cada presente desta lista vai fazer parte do nosso dia a dia, do primeiro café da manhã aos jantares com quem a gente ama. Obrigado por estar com a gente nesse começo.</p>
+    <span class="ass">Brenda &amp; Luan</span>
+  </div>
+</section>
+
+<section class="evento" id="evento">
+  <div class="ev-card">
+    <div class="ev-date"><small>Sábado</small><b>12</b><small>Dez · 2026</small></div>
+    <div class="ev-info">
+      <span class="caps">O chá de panela</span>
+      <h3>Às 15h, no Espaço Villa Jardim</h3>
+      <p>Rua das Palmeiras, 123 · Centro · Imbituba/SC</p>
+      <span class="ev-count" id="ev-count"></span>
+      <div class="ev-acts">
+        <a class="ev-btn" id="ev-mapa" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>Como chegar</a>
+        <button class="ev-btn" id="ev-agenda"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Salvar na agenda</button>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="how">
   <div class="how-grid">
@@ -234,11 +296,12 @@ a{color:inherit}
 </section>
 
 <main class="wrap" id="lista">
-  <div class="cats" id="cats"></div>
   <div class="count-row">
     <h2>Lista de presentes</h2>
     <span id="count-label"></span>
   </div>
+  <div class="tabs-bar"><nav class="cats" id="cats" aria-label="Categorias"></nav></div>
+  <div style="height:18px"></div>
   <div class="grid" id="grid"></div>
   <div class="more-wrap" id="more"></div>
 
@@ -324,14 +387,21 @@ function myReserva(g){ return g.reservas.find(r => r.token === myToken); }
 function renderCats(){
   const cats = ['todos', ...new Set(gifts.map(g => g.cat))];
   $('#cats').innerHTML = cats.map(c => {
-    if (c === 'todos') return `<div class="cat-tile ${filter==='todos'?'on':''}" data-f="todos"><div class="cat-ph">${ICON.grid}<span class="cat-check">${ICON.check}</span></div><span>Todos</span></div>`;
-    const info = CATS[c] || {label:c, photo:''};
-    return `<div class="cat-tile ${filter===c?'on':''}" data-f="${c}"><div class="cat-ph" style="background-image:url('${info.photo}')"><span class="cat-check">${ICON.check}</span></div><span>${info.label}</span></div>`;
+    const n = c === 'todos' ? gifts.length : gifts.filter(g => g.cat === c).length;
+    const label = c === 'todos' ? 'Todos' : (CATS[c] || {label:c}).label;
+    return `<button class="tab ${filter===c?'on':''}" data-f="${c}">${esc(label)}<sup>${n}</sup></button>`;
   }).join('');
 }
 $('#cats').addEventListener('click', e => {
-  const b = e.target.closest('[data-f]'); if (!b) return;
+  let b = e.target.closest('[data-f]'); if (!b) return;
   filter = b.dataset.f; shown = PAGE; renderCats(); renderGrid();
+  b = $('#cats [data-f="' + filter + '"]'); if (b) b.scrollIntoView({block:'nearest', inline:'center'});
+  // se as abas já estão grudadas no topo, volta pro começo da lista da categoria
+  const bar = $('.tabs-bar'), barTop = bar.getBoundingClientRect().top;
+  if (barTop <= (EDITOR ? 49 : 1)) {
+    const y = $('#grid').getBoundingClientRect().top + scrollY - bar.offsetHeight - (EDITOR ? 48 : 0) - 14;
+    if (window.__lenis) window.__lenis.scrollTo(y); else window.scrollTo({top:y, behavior:'smooth'});
+  }
 });
 
 function cardHTML(g){
@@ -473,10 +543,36 @@ function openCancelSheet(id){
   $('#ck-no').onclick = closeSheet;
 }
 
+/* data e local (fictícios por enquanto) */
+const EVENTO = {
+  titulo: 'Chá de panela · Brenda & Luan',
+  inicio: '2026-12-12T15:00:00-03:00', fim: '2026-12-12T19:00:00-03:00',
+  local: 'Espaço Villa Jardim, Rua das Palmeiras, 123 - Centro, Imbituba - SC'
+};
+(function(){
+  const dias = Math.ceil((new Date(EVENTO.inicio) - new Date()) / 864e5);
+  $('#ev-count').textContent = dias > 1 ? `Faltam ${dias} dias` : dias === 1 ? 'É amanhã!' : dias === 0 ? 'É hoje!' : 'Já aconteceu';
+  $('#ev-mapa').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(EVENTO.local);
+  const ics = d => new Date(d).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  $('#ev-agenda').onclick = () => {
+    const txt = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//BrendaLuan//Cha//PT','BEGIN:VEVENT',
+      'UID:cha-brenda-luan@convite', 'DTSTAMP:' + ics(new Date()),
+      'DTSTART:' + ics(EVENTO.inicio), 'DTEND:' + ics(EVENTO.fim),
+      'SUMMARY:' + EVENTO.titulo, 'LOCATION:' + EVENTO.local.replace(/,/g, '\\,'),
+      'DESCRIPTION:Lista de presentes: ' + location.href.split('?')[0],
+      'END:VEVENT','END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([txt], {type:'text/calendar'}));
+    a.download = 'cha-de-panela-brenda-luan.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Evento salvo. Abra o arquivo para adicionar à agenda.');
+  };
+})();
+
 /* topo: rolar até a lista / abrir pix */
 $('#cta-lista').onclick = () => {
   const el = $('#lista');
-  if (window.__lenis) window.__lenis.scrollTo(el, {offset:-8}); else el.scrollIntoView({behavior:'smooth'});
+  if (window.__lenis) window.__lenis.scrollTo(el, {offset:-4}); else el.scrollIntoView({behavior:'smooth'});
 };
 $('#cta-pix').onclick = () => $('#btn-pix').click();
 
@@ -616,11 +712,11 @@ function initReveals(){
     if (!window.gsap) return;
     gsap.from('.hero-in > *', {opacity:0, y:18, duration:.8, stagger:.09, ease:'power3.out', delay:.05});
     gsap.from('.how-step', {opacity:0, y:12, duration:.6, stagger:.08, ease:'power2.out', delay:.35});
-    gsap.from('.cat-tile', {opacity:0, y:14, duration:.5, stagger:.05, ease:'power2.out', delay:.35});
+    gsap.from('.recado-foto, .recado-txt > *', {opacity:0, y:16, duration:.7, stagger:.08, ease:'power2.out', delay:.3});
     gsap.from('.card', {opacity:0, y:18, duration:.5, stagger:.04, ease:'power2.out', delay:.4});
   }catch(e){}
   // rede de segurança: garante que nada fique invisível mesmo se a animação falhar
-  setTimeout(() => $$('.hero-in > *,.how-step,.cat-tile,.card').forEach(el => { el.style.opacity=''; el.style.transform=''; }), 2200);
+  setTimeout(() => $$('.hero-in > *,.how-step,.recado-foto,.recado-txt > *,.card').forEach(el => { el.style.opacity=''; el.style.transform=''; }), 2200);
 }
 
 renderCats();
