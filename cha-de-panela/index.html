@@ -156,7 +156,7 @@ a{color:inherit}
 .more-btn:hover{background:var(--navy);color:#fff}
 .more-wrap small{font-size:12px;color:var(--muted)}
 .thumb.fit{background:#fff}
-.thumb.fit img{object-fit:contain;padding:10%}
+.thumb.fit img{object-fit:contain;padding:7%}
 .photo-field{display:flex;gap:14px;align-items:center}
 .photo-prev{width:84px;height:104px;border-radius:12px;border:1px dashed var(--sand);background:#fff center/contain no-repeat;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--sand)}
 .photo-prev.has{border-style:solid;border-color:var(--line)}
@@ -222,6 +222,20 @@ a{color:inherit}
 .toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-20px);background:var(--ink);color:#fff;font-size:13px;padding:11px 18px;border-radius:999px;opacity:0;transition:.3s;z-index:60;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,.25)}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .editor .toast{top:62px}
+.list-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:46px 18px;color:var(--muted);font-size:14.5px;line-height:1.5;background:#fff;border:1px dashed var(--line);border-radius:18px}
+.list-state b{color:var(--navy)}
+.spin{display:inline-block;width:15px;height:15px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:gira .7s linear infinite;vertical-align:-2px;margin-right:9px;opacity:.75}
+@keyframes gira{to{transform:rotate(360deg)}}
+.thumb-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--sand)}
+.thumb-empty .ico{width:34px;height:34px}
+.check-row{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;color:var(--ink);margin:-4px 0 12px}
+.check-row input{width:19px;height:19px;accent-color:var(--navy)}
+.pix-tit{margin:-6px 0 16px!important;font-size:13px!important}
+.pix-avisos{margin-top:14px;background:#fff;border:1px solid rgba(199,154,91,.35);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.pix-avisos small{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
+.pix-avisos span{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--navy);border-top:1px solid var(--line);padding-top:8px}
+.pix-avisos i{font-style:normal;color:var(--muted);font-size:12.5px}
+.pix-avisos em{font-size:13px;color:var(--muted)}
 
 .fab{position:fixed;right:22px;bottom:26px;width:56px;height:56px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 14px 30px rgba(17,32,51,.42);z-index:30;transition:transform .15s}
 .fab .ico{width:22px;height:22px}
@@ -252,7 +266,7 @@ a{color:inherit}
   <div class="hero-in">
     <span class="kick">Chá de panela</span>
     <h1>Brenda <i>&amp;</i> Luan</h1>
-    <span class="hero-date">12 de dezembro · Imbituba</span>
+    <span class="hero-date" id="hero-date"></span>
     <div class="hero-ctas">
       <button class="cta" id="cta-lista">Ver a lista de presentes
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
@@ -273,11 +287,11 @@ a{color:inherit}
 
 <section class="evento" id="evento">
   <div class="ev-card">
-    <div class="ev-date"><small>Sábado</small><b>12</b><small>Dez · 2026</small></div>
+    <div class="ev-date"><small id="ev-dia-sem"></small><b id="ev-dia"></b><small id="ev-mes"></small></div>
     <div class="ev-info">
       <span class="caps">O chá de panela</span>
-      <h3>Às 15h, no Espaço Villa Jardim</h3>
-      <p>Rua das Palmeiras, 123 · Centro · Imbituba/SC</p>
+      <h3 id="ev-titulo"></h3>
+      <p id="ev-endereco"></p>
       <span class="ev-count" id="ev-count"></span>
       <div class="ev-acts">
         <a class="ev-btn" id="ev-mapa" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>Como chegar</a>
@@ -313,6 +327,7 @@ a{color:inherit}
       </div>
       <button class="pix-btn" id="btn-pix">Ver chave PIX</button>
     </div>
+    <div class="pix-avisos" id="pix-avisos" hidden></div>
   </section>
 
   <p class="foot"><em>Obrigado por fazer parte da nossa história.</em><button class="noivos-link" id="entrar-noivos">Área dos noivos</button></p>
@@ -331,71 +346,120 @@ a{color:inherit}
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-// Área dos noivos: no protótipo a senha é só demonstração; na versão real o login é no Supabase
-const SENHA_DEMO = 'brendaeluan';
-let EDITOR = sessionStorage.getItem('cha-noivos') === '1';
-let pendingPhoto = null;
-const PIX_KEY = 'chadepanela.brendaluan@pix.exemplo';
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ====== configuração ====== */
+const CFG = window.CHA_CONFIG || {};
+const PIX_KEY = CFG.pix || '';
+const EMAIL_NOIVOS = CFG.emailNoivos || 'noivos@brendaeluan.app';
+const TEM_BANCO = !!(CFG.supabaseUrl && CFG.supabaseKey && window.supabase);
+let EDITOR = false;
+let pendingPhoto = null;   // Blob da foto escolhida no formulário
+
+// dois clientes: o do convidado (sessão anônima) e o dos noivos (login com senha),
+// cada um com a sua chave no navegador, para um não derrubar a sessão do outro
+const sbOpts = key => ({ auth: { storageKey: key, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+const sb  = TEM_BANCO ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey, sbOpts('cha-sessao')) : null;
+const sbN = TEM_BANCO ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey, sbOpts('cha-sessao-noivos')) : null;
 
 const ICON = {
   star:'<svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.6 7.1.7-5.4 4.8 1.6 7-6.2-3.8-6.2 3.8 1.6-7-5.4-4.8 7.1-.7z"/></svg>',
   check:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg>',
   pencil:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
   trash:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
-  grid:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
   camera:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
   gift:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M3 12h18M12 8v13M8 8a2.5 2.5 0 1 1 4-3 2.5 2.5 0 1 1 4 3"/></svg>',
 };
 
 const CATS = {
-  cozinha:  {label:'Cozinha',    color:'#1F3B5C', photo:'img/panelas.jpg'},
-  casa:     {label:'Casa',       color:'#45607C', photo:'img/aspirador.jpg'},
-  quarto:   {label:'Quarto',     color:'#7FA8CC', photo:'img/cama.jpg'},
-  banheiro: {label:'Banheiro',   color:'#2D5273', photo:'img/toalhas.jpg'},
-  experiencia:{label:'Experiências', color:'#C79A5B', photo:'img/jantar.jpg'},
+  cozinha:    {label:'Cozinha'},
+  casa:       {label:'Casa'},
+  quarto:     {label:'Quarto'},
+  banheiro:   {label:'Banheiro'},
+  experiencia:{label:'Experiências'},
 };
 
-const SEED = [
-  {nome:'Jogo de panelas antiaderente', cat:'cozinha', loja:'#', qtd:1, foto:'img/panelas.jpg', fav:true},
-  {nome:'Air fryer 6L', cat:'cozinha', loja:'#', qtd:1, foto:'img/airfryer.jpg'},
-  {nome:'Liquidificador potente', cat:'cozinha', loja:'#', qtd:2, foto:'img/liquidificador.jpg'},
-  {nome:'Jogo de facas profissional', cat:'cozinha', loja:'#', qtd:1, foto:'img/facas.jpg'},
-  {nome:'Jogo de toalhas de banho', cat:'banheiro', loja:'#', qtd:3, foto:'img/toalhas.jpg', fav:true},
-  {nome:'Roupão de casal', cat:'banheiro', loja:'#', qtd:2, foto:'img/roupao.jpg'},
-  {nome:'Jogo de cama king size', cat:'quarto', loja:'#', qtd:1, foto:'img/cama.jpg'},
-  {nome:'Aspirador robô', cat:'casa', loja:'#', qtd:1, foto:'img/aspirador.jpg'},
-  {nome:'Conjunto de taças de vinho', cat:'casa', loja:'#', qtd:4, foto:'img/tacas.jpg'},
-  {nome:'Jantar romântico (voucher)', cat:'experiencia', loja:'#', qtd:1, foto:'img/jantar.jpg'},
-];
-
-let uid = 0;
-let gifts = SEED.map(g => ({id: ++uid, reservas: [], ...g}));
+/* ====== estado ====== */
+// cada presente: {id, nome, detalhe, cat, qtd, loja, foto, fav, ordem, reservadas, minha, quem:[nomes] (só noivos)}
+let gifts = [];
+let pixAvisos = [];        // só noivos
 let filter = 'todos';
-let myToken = localStorage.getItem('cha-token-demo') || (() => { const t = 'g' + Math.random().toString(36).slice(2); localStorage.setItem('cha-token-demo', t); return t; })();
+let carregado = false, erroCarga = '';
 let revealDone = false;
 const PAGE = 8;
 let shown = PAGE;
 
-function available(g){ return g.qtd - g.reservas.length; }
-function myReserva(g){ return g.reservas.find(r => r.token === myToken); }
+function available(g){ return g.qtd - g.reservadas; }
+function fotoUrl(f){
+  if (!f) return '';
+  if (/^(https?:|data:|blob:|img\/)/.test(f)) return f;
+  return CFG.supabaseUrl + '/storage/v1/object/public/cha/' + f;     // caminho no bucket "cha"
+}
 
+/* ====== sessão do convidado (anônima, sem cadastro) ====== */
+let sessaoPronta = null;
+function garantirSessao(){
+  if (!sb) return Promise.reject(new Error('sem banco'));
+  if (!sessaoPronta) sessaoPronta = (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) return session.user;
+    const { data, error } = await sb.auth.signInAnonymously();
+    if (error) throw error;
+    return data.user;
+  })().catch(e => { sessaoPronta = null; throw e; });
+  return sessaoPronta;
+}
+
+/* ====== carregar a lista ====== */
+async function carregar(){
+  if (!TEM_BANCO) { erroCarga = 'config'; carregado = true; renderCats(); renderGrid(); return; }
+  try {
+    // quem já tem sessão vê "Seu · cancelar"; visitante novo lê sem criar sessão
+    const { data, error } = await sb.rpc('cha_lista');
+    if (error) throw error;
+    gifts = data.map(p => ({ ...p, quem: [] }));
+    if (EDITOR) await carregarNomes();
+    erroCarga = '';
+  } catch (e) {
+    console.warn('cha_lista', e);
+    erroCarga = 'rede';
+  }
+  carregado = true;
+  renderCats(); renderGrid();
+}
+async function carregarNomes(){
+  const [{ data: rs, error: e1 }, { data: px, error: e2 }] = await Promise.all([
+    sbN.from('cha_reservas').select('presente_id,nome,criado_em').order('criado_em'),
+    sbN.from('cha_pix_avisos').select('nome,criado_em').order('criado_em', { ascending: false }),
+  ]);
+  if (e1 || e2) throw (e1 || e2);
+  const por = {};
+  rs.forEach(r => (por[r.presente_id] ||= []).push(r.nome));
+  gifts.forEach(g => g.quem = por[g.id] || []);
+  pixAvisos = px;
+  renderPixAvisos();
+}
+
+/* ====== categorias ====== */
 function renderCats(){
-  const cats = ['todos', ...new Set(gifts.map(g => g.cat))];
-  $('#cats').innerHTML = cats.map(c => {
+  const cats = ['todos', ...Object.keys(CATS).filter(c => gifts.some(g => g.cat === c))];
+  if (!cats.includes(filter)) filter = 'todos';
+  $('#cats').innerHTML = cats.length > 2 || filter !== 'todos' ? cats.map(c => {
     const n = c === 'todos' ? gifts.length : gifts.filter(g => g.cat === c).length;
-    const label = c === 'todos' ? 'Todos' : (CATS[c] || {label:c}).label;
+    const label = c === 'todos' ? 'Todos' : CATS[c].label;
     return `<button class="tab ${filter===c?'on':''}" data-f="${c}">${esc(label)}<sup>${n}</sup></button>`;
-  }).join('');
+  }).join('') : '';
+  $('.tabs-bar').hidden = !$('#cats').innerHTML;
 }
 $('#cats').addEventListener('click', e => {
   let b = e.target.closest('[data-f]'); if (!b) return;
   filter = b.dataset.f; shown = PAGE; renderCats(); renderGrid();
   b = $('#cats [data-f="' + filter + '"]'); if (b) b.scrollIntoView({block:'nearest', inline:'center'});
-  // se as abas já estão grudadas no topo, volta pro começo da lista da categoria
   const bar = $('.tabs-bar'), barTop = bar.getBoundingClientRect().top;
   if (barTop <= (EDITOR ? 49 : 1)) {
     const y = $('#grid').getBoundingClientRect().top + scrollY - bar.offsetHeight - (EDITOR ? 48 : 0) - 14;
@@ -403,26 +467,29 @@ $('#cats').addEventListener('click', e => {
   }
 });
 
+/* ====== cards ====== */
 function cardHTML(g){
   const left = available(g);
   const taken = left <= 0;
-  const mine = myReserva(g);
+  const mine = g.minha;
   const cat = CATS[g.cat] || {label:g.cat};
   const meta = [];
+  if (g.detalhe) meta.push(esc(g.detalhe));
   if (g.qtd > 1) meta.push(taken ? 'esgotado' : (left === 1 ? 'resta 1' : 'restam ' + left));
   let footer;
-  // convidados não veem quem deu; os noivos (?editar) veem o nome completo de todos
-  const quem = EDITOR && g.reservas.length
-    ? `<div class="givers"><small>Presenteado por</small>${g.reservas.map(r => `<span>${esc(r.nome)}</span>`).join('')}</div>`
+  // convidados não veem quem deu; os noivos veem o nome completo de todos
+  const quem = EDITOR && g.quem.length
+    ? `<div class="givers"><small>Presenteado por</small>${g.quem.map(n => `<span>${esc(n)}</span>`).join('')}</div>`
     : '';
   if (mine) footer = `<button class="pick-btn mine" data-cancel="${g.id}">${ICON.check} Seu · cancelar</button>`;
   else if (taken) footer = EDITOR ? '' : `<div class="taken-by">já presenteado</div>`;
   else footer = `<button class="pick-btn" data-pick="${g.id}">Presentear</button>`;
   footer = quem + footer;
+  const foto = fotoUrl(g.foto);
 
   return `<div class="card ${taken && !mine ? 'taken' : ''} ${mine ? 'mine-card' : ''}" data-card="${g.id}">
-    <div class="thumb ${/^(https?:|data:)/.test(g.foto) ? 'fit' : ''}">
-      <img src="${esc(g.foto)}" alt="${esc(g.nome)}" loading="lazy">
+    <div class="thumb fit">
+      ${foto ? `<img src="${esc(foto)}" alt="${esc(g.nome)}" loading="lazy">` : `<span class="thumb-empty">${ICON.gift}</span>`}
       ${g.fav && !taken ? `<span class="fav-badge">${ICON.star} favorito</span>` : ''}
     </div>
     ${EDITOR ? `<div class="edit-row"><button class="edit-dot" data-edit="${g.id}" aria-label="Editar">${ICON.pencil}</button><button class="edit-dot" data-del="${g.id}" aria-label="Remover">${ICON.trash}</button></div>` : ''}
@@ -446,10 +513,20 @@ function attachCardSpotlight(){
   });
 }
 
+function estadoVazio(){
+  if (!carregado) return `<div class="list-state" id="carregando"><span class="spin"></span>Carregando a lista…</div>`;
+  if (erroCarga === 'config') return `<div class="list-state">A lista ainda não foi conectada.</div>`;
+  if (erroCarga) return `<div class="list-state">Não conseguimos carregar a lista agora.<button class="more-btn" id="tentar-de-novo">Tentar de novo</button></div>`;
+  if (!gifts.length) return EDITOR
+    ? `<div class="list-state">A lista está vazia. Toque no <b>+</b> para cadastrar o primeiro presente.</div>`
+    : `<div class="list-state">Os noivos estão montando a lista. Volte daqui a pouquinho!</div>`;
+  return `<div class="list-state">Nenhum presente nessa categoria ainda.</div>`;
+}
+
 function renderGrid(){
   const inCat = gifts.filter(g => filter === 'todos' || g.cat === filter);
   // disponíveis (e os reservados por mim) primeiro; já presenteados no fim
-  const isOpen = g => available(g) > 0 || !!myReserva(g);
+  const isOpen = g => available(g) > 0 || g.minha;
   const open = inCat.filter(isOpen), done = inCat.filter(g => !isOpen(g));
   const ordered = [...open, ...done];
   const page = ordered.slice(0, shown);
@@ -458,7 +535,8 @@ function renderGrid(){
     if (i === open.length && done.length) html += `<div class="grid-sep">Já presenteados</div>`;
     html += cardHTML(g);
   });
-  $('#grid').innerHTML = html || '<p style="color:var(--muted);font-size:14px">Nenhum presente nessa categoria ainda.</p>';
+  $('#grid').innerHTML = html || estadoVazio();
+  $('#tentar-de-novo')?.addEventListener('click', () => { carregado = false; renderGrid(); carregar(); });
   const rest = ordered.length - page.length;
   $('#more').innerHTML = rest > 0
     ? `<button class="more-btn" id="more-btn">Ver mais presentes</button><small>Mostrando ${page.length} de ${ordered.length}</small>`
@@ -467,134 +545,203 @@ function renderGrid(){
   attachCardSpotlight();
   const total = gifts.length, livres = gifts.filter(g => available(g) > 0).length;
   setCountLabel(livres, total);
-  if (!revealDone) { revealDone = true; initReveals(); }
+  if (!revealDone && carregado) { revealDone = true; initReveals(); }
 }
 
 function setCountLabel(livres, total){
   const el = $('#count-label');
-  if (window.gsap) {
-    const obj = {v: parseFloat(el.dataset.v || livres)};
-    gsap.to(obj, {v: livres, duration:.7, ease:'power2.out', onUpdate:() => el.textContent = Math.round(obj.v) + ' de ' + total + ' disponíveis'});
-    el.dataset.v = livres;
-  } else el.textContent = livres + ' de ' + total + ' disponíveis';
+  if (!carregado || !total) { el.textContent = ''; return; }
+  const txt = v => (total === 1 ? (v ? '1 disponível' : 'já presenteado') : Math.round(v) + ' de ' + total + ' disponíveis');
+  if (window.gsap && el.dataset.v) {
+    const obj = {v: parseFloat(el.dataset.v)};
+    gsap.to(obj, {v: livres, duration:.7, ease:'power2.out', onUpdate:() => el.textContent = txt(obj.v)});
+  } else el.textContent = txt(livres);
+  el.dataset.v = livres;
 }
 
 function openSheet(html){ $('#sheet-body').innerHTML = html; $('#sheet').classList.add('on'); $('#sheet-bg').classList.add('on'); }
 function closeSheet(){ $('#sheet').classList.remove('on'); $('#sheet-bg').classList.remove('on'); }
 $('#sheet-bg').addEventListener('click', closeSheet);
-function toast(msg, ms=2400){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'), ms); }
+function toast(msg, ms=2600){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'), ms); }
 function burstConfetti(){
   if (!window.confetti) return;
   confetti({particleCount:70, spread:68, startVelocity:36, ticks:160, gravity:.9, scalar:.9, colors:['#C79A5B','#1F3B5C','#B7CFE3','#fff'], origin:{y:.72}});
 }
+function ocupado(btn, sim, texto){
+  if (!btn) return;
+  if (sim) { btn.dataset.txt = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="spin"></span>${texto || 'Aguarde…'}`; }
+  else { btn.disabled = false; if (btn.dataset.txt) btn.innerHTML = btn.dataset.txt; }
+}
+const msgErro = e => {
+  const m = (e && (e.message || e.error_description)) || '';
+  if (/esgotado/.test(m)) return 'esgotado';
+  if (/já reservado/.test(m)) return 'ja';
+  if (/muitas|muitos|rate limit|too many/i.test(m)) return 'limite';
+  if (/não existe/.test(m)) return 'sumiu';
+  return 'rede';
+};
 
-/* escolher / cancelar presente */
+/* ====== escolher / cancelar presente ====== */
 $('#grid').addEventListener('click', e => {
   const pick = e.target.closest('[data-pick]');
   const cancel = e.target.closest('[data-cancel]');
   const edit = e.target.closest('[data-edit]');
   const del = e.target.closest('[data-del]');
-  if (pick) return openPickSheet(+pick.dataset.pick);
-  if (cancel) return openCancelSheet(+cancel.dataset.cancel);
-  if (edit) return openEditSheet(+edit.dataset.edit);
-  if (del) return openDeleteSheet(+del.dataset.del);
-  if (e.target.closest('a')) return;
+  if (pick) return openPickSheet(pick.dataset.pick);
+  if (cancel) return openCancelSheet(cancel.dataset.cancel);
+  if (edit) return openEditSheet(edit.dataset.edit);
+  if (del) return openDeleteSheet(del.dataset.del);
+  if (e.target.closest('a,button')) return;
   const card = e.target.closest('.card');
-  if (card && !card.classList.contains('taken') && !card.classList.contains('mine-card')) openPickSheet(+card.dataset.card);
+  if (card && !card.classList.contains('taken') && !card.classList.contains('mine-card')) openPickSheet(card.dataset.card);
 });
 
 function openPickSheet(id){
   const g = gifts.find(x => x.id === id); if (!g) return;
   const cat = (CATS[g.cat] || {label:g.cat}).label;
   const loja = g.loja ? `<a class="store-link" href="${esc(g.loja)}" target="_blank" rel="noopener">ver referência na loja ↗</a>` : '';
-  openSheet(`<div class="pk-head"><img src="${esc(g.foto)}" alt=""><div><span class="cat-line">${esc(cat)}</span><h3>${esc(g.nome)}</h3>${loja}</div></div>
+  const foto = fotoUrl(g.foto);
+  openSheet(`<div class="pk-head">${foto ? `<img src="${esc(foto)}" alt="">` : ''}<div><span class="cat-line">${esc(cat)}</span><h3>${esc(g.nome)}</h3>${loja}</div></div>
     <p>Deixe seu nome para reservar. Os outros convidados só verão que ele já foi presenteado, sem o seu nome.</p>
-    <div class="field"><label>Nome</label><input id="pk-nome" placeholder="Seu nome completo" autocomplete="name" enterkeyhint="done"></div>
+    <div class="field"><label>Nome</label><input id="pk-nome" placeholder="Seu nome completo" autocomplete="name" enterkeyhint="done" maxlength="60" value="${esc(localStorage.getItem('cha-nome') || '')}"></div>
+    <div class="login-err" id="pk-err"></div>
     <button class="btn shine" id="pk-ok" disabled>Confirmar presente</button>
     <button class="btn alt" id="pk-cancel">Voltar</button>`);
   const input = $('#pk-nome'), ok = $('#pk-ok');
-  input.addEventListener('input', () => ok.disabled = input.value.trim().length < 2);
+  const valida = () => ok.disabled = input.value.trim().length < 2;
+  valida();
+  input.addEventListener('input', valida);
   input.addEventListener('keydown', ev => { if (ev.key === 'Enter' && !ok.disabled) ok.click(); });
   setTimeout(() => input.focus(), 320);
-  ok.onclick = () => {
-    if (available(g) <= 0) { closeSheet(); renderGrid(); toast('Esse presente acabou de ser escolhido.'); return; }
+  ok.onclick = async () => {
     const nome = input.value.trim();
-    g.reservas.push({nome, token: myToken});
-    renderGrid(); burstConfetti();
-    openSheet(`<div class="done">
-      <div class="done-ic">${ICON.check}</div>
-      <h3>Obrigado, ${esc(nome.split(' ')[0])}!</h3>
-      <p><b>${esc(g.nome)}</b> ficou reservado no seu nome. Os noivos vão saber que veio de você.</p>
-      <p class="hint">Mudou de ideia? Abra esta página neste mesmo celular e toque em “cancelar” no presente.</p>
-      <button class="btn" id="dn-ok">Voltar para a lista</button>
-    </div>`);
-    $('#dn-ok').onclick = closeSheet;
+    ocupado(ok, true, 'Reservando…');
+    try {
+      await garantirSessao();
+      const { error } = await sb.rpc('cha_reservar', { p_presente: g.id, p_nome: nome });
+      if (error) throw error;
+      localStorage.setItem('cha-nome', nome);
+      g.reservadas += 1; g.minha = true;
+      renderGrid(); burstConfetti();
+      openSheet(`<div class="done">
+        <div class="done-ic">${ICON.check}</div>
+        <h3>Obrigado, ${esc(nome.split(' ')[0])}!</h3>
+        <p><b>${esc(g.nome)}</b> ficou reservado no seu nome. Os noivos vão saber que veio de você.</p>
+        <p class="hint">Mudou de ideia? Abra esta página neste mesmo celular e toque em “cancelar” no presente.</p>
+        <button class="btn" id="dn-ok">Voltar para a lista</button>
+      </div>`);
+      $('#dn-ok').onclick = closeSheet;
+    } catch (e) {
+      const k = msgErro(e);
+      ocupado(ok, false);
+      if (k === 'esgotado' || k === 'sumiu') { closeSheet(); toast('Poxa, alguém acabou de escolher esse presente.'); carregar(); return; }
+      if (k === 'ja') { closeSheet(); carregar(); return; }
+      $('#pk-err').textContent = k === 'limite' ? 'Muitas tentativas. Espere alguns minutos e tente de novo.' : 'Não conseguimos reservar agora. Confira sua internet e tente de novo.';
+    }
   };
   $('#pk-cancel').onclick = closeSheet;
 }
 function openCancelSheet(id){
-  const g = gifts.find(x => x.id === id); if (!g) return;
-  const mine = myReserva(g); if (!mine) return;
+  const g = gifts.find(x => x.id === id); if (!g || !g.minha) return;
   openSheet(`<h3>Cancelar reserva?</h3><p>Você escolheu <b>${esc(g.nome)}</b>. Se cancelar, ele volta a aparecer disponível pros outros convidados.</p>
+    <div class="login-err" id="ck-err"></div>
     <button class="btn danger" id="ck-ok">Cancelar minha escolha</button>
     <button class="btn alt" id="ck-no">Manter escolha</button>`);
-  $('#ck-ok').onclick = () => { g.reservas = g.reservas.filter(r => r.token !== myToken); closeSheet(); renderGrid(); toast('Reserva cancelada.'); };
+  $('#ck-ok').onclick = async () => {
+    const b = $('#ck-ok'); ocupado(b, true, 'Cancelando…');
+    try {
+      await garantirSessao();
+      const { error } = await sb.rpc('cha_cancelar', { p_presente: g.id });
+      if (error) throw error;
+      closeSheet(); toast('Reserva cancelada.'); await carregar();
+    } catch (e) { ocupado(b, false); $('#ck-err').textContent = 'Não conseguimos cancelar agora. Tente de novo.'; }
+  };
   $('#ck-no').onclick = closeSheet;
 }
 
-/* data e local (fictícios por enquanto) */
-const EVENTO = {
-  titulo: 'Chá de panela · Brenda & Luan',
-  inicio: '2026-12-12T15:00:00-03:00',
-  local: 'Espaço Villa Jardim, Rua das Palmeiras, 123 - Centro, Imbituba - SC'
-};
+/* ====== data e local ====== */
+const EVENTO = CFG.evento || {};
 (function(){
+  if (EVENTO.inicio) {
+    const d = new Date(EVENTO.inicio), tz = 'America/Sao_Paulo';
+    const f = o => new Intl.DateTimeFormat('pt-BR', {timeZone: tz, ...o}).format(d);
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    $('#hero-date').textContent = f({day:'numeric', month:'long'}) + (EVENTO.cidade ? ' · ' + EVENTO.cidade : '');
+    $('#ev-dia-sem').textContent = cap(f({weekday:'long'}).replace('-feira', ''));
+    $('#ev-dia').textContent = f({day:'numeric'});
+    $('#ev-mes').textContent = cap(f({month:'short'}).replace('.', '')) + ' · ' + f({year:'numeric'});
+    const h = f({hour:'2-digit', minute:'2-digit'}).replace(':00', 'h').replace(':', 'h');
+    $('#ev-titulo').textContent = 'Às ' + h + (EVENTO.lugar ? ', no ' + EVENTO.lugar : '');
+  } else { $('#evento').hidden = true; $('#hero-date').hidden = true; }
+  $('#ev-endereco').textContent = EVENTO.endereco || '';
+})();
+(function(){
+  if (!EVENTO.inicio) { $('#ev-count').hidden = true; return; }
   const dias = Math.ceil((new Date(EVENTO.inicio) - new Date()) / 864e5);
   $('#ev-count').textContent = dias > 1 ? `Faltam ${dias} dias` : dias === 1 ? 'É amanhã!' : dias === 0 ? 'É hoje!' : 'Já aconteceu';
-  $('#ev-mapa').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(EVENTO.local);
+  if (EVENTO.local) $('#ev-mapa').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(EVENTO.local);
 })();
 
-/* topo: rolar até a lista / abrir pix */
+/* ====== topo: rolar até a lista / abrir pix ====== */
 $('#cta-lista').onclick = () => {
   const el = $('#lista');
   if (window.__lenis) window.__lenis.scrollTo(el, {offset:-4}); else el.scrollIntoView({behavior:'smooth'});
 };
 $('#cta-pix').onclick = () => $('#btn-pix').click();
 
-/* pix */
+/* ====== pix ====== */
 $('#btn-pix').addEventListener('click', () => {
-  openSheet(`<h3>Contribuir via PIX</h3><p>Qualquer valor ajuda — sem precisar escolher um item específico da lista.</p>
-    <div class="pixbox"><code>${PIX_KEY}</code><button class="btn alt" style="width:auto;height:44px;padding:0 16px;margin:0" id="pix-copy">Copiar</button></div>
-    <div class="field"><label>Seu nome (opcional)</label><input id="pix-nome" placeholder="Pra avisarmos os noivos"></div>
+  openSheet(`<h3>Contribuir via PIX</h3><p>Qualquer valor ajuda, sem precisar escolher um item da lista.</p>
+    <div class="pixbox"><code>${esc(PIX_KEY)}</code><button class="btn alt" style="width:auto;height:44px;padding:0 16px;margin:0" id="pix-copy">Copiar</button></div>
+    ${CFG.pixTitular ? `<p class="pix-tit">Em nome de <b>${esc(CFG.pixTitular)}</b></p>` : ''}
+    <div class="field"><label>Seu nome (opcional)</label><input id="pix-nome" placeholder="Pra avisarmos os noivos" maxlength="60" value="${esc(localStorage.getItem('cha-nome') || '')}"></div>
     <button class="btn shine" id="pix-ok">Já contribuí</button>`);
-  $('#pix-copy').onclick = () => { navigator.clipboard?.writeText(PIX_KEY); toast('Chave PIX copiada.'); };
-  $('#pix-ok').onclick = () => { closeSheet(); burstConfetti(); toast('Muito obrigado pela contribuição!'); };
+  $('#pix-copy').onclick = async () => {
+    try { await navigator.clipboard.writeText(PIX_KEY); toast('Chave PIX copiada.'); }
+    catch (e) { toast('Toque e segure a chave para copiar.'); }
+  };
+  $('#pix-ok').onclick = async () => {
+    const b = $('#pix-ok'), nome = $('#pix-nome').value.trim();
+    ocupado(b, true, 'Enviando…');
+    try {
+      await garantirSessao();
+      const { data: { user } } = await sb.auth.getUser();
+      const { error } = await sb.from('cha_pix_avisos').insert({ dono: user.id, nome: nome || null });
+      if (error) throw error;
+      if (nome) localStorage.setItem('cha-nome', nome);
+    } catch (e) { console.warn('pix aviso', e); }   // o aviso é cortesia: não trava o agradecimento
+    closeSheet(); burstConfetti(); toast('Muito obrigado pela contribuição!');
+  };
 });
 
-/* admin: adicionar / editar / excluir */
+/* ====== área dos noivos: cadastrar / editar / remover ====== */
 function giftForm(g){
   const catOpts = Object.entries(CATS).map(([k,v]) => `<option value="${k}" ${g && g.cat===k?'selected':''}>${v.label}</option>`).join('');
-  return `<div class="field"><label>Nome do presente</label><input id="f-nome" value="${g?esc(g.nome):''}" placeholder="Ex: Jogo de panelas"></div>
+  const foto = g ? fotoUrl(g.foto) : '';
+  return `<div class="field"><label>Nome do presente</label><input id="f-nome" maxlength="80" value="${g?esc(g.nome):''}" placeholder="Ex: Jogo de panelas"></div>
+    <div class="field"><label>Detalhe (opcional)</label><input id="f-detalhe" maxlength="60" value="${g?esc(g.detalhe||''):''}" placeholder="Ex: 220V, cor preta"></div>
     <div class="row2">
       <div class="field"><label>Categoria</label><select id="f-cat">${catOpts}</select></div>
-      <div class="field"><label>Quantidade desejada</label><input id="f-qtd" type="number" min="1" value="${g?g.qtd:1}"></div>
+      <div class="field"><label>Quantidade</label><input id="f-qtd" type="number" min="1" max="50" value="${g?g.qtd:1}"></div>
     </div>
-    <div class="field"><label>Link da loja (opcional)</label><input id="f-loja" value="${g && g.loja!=='#' ? esc(g.loja) : ''}" placeholder="Cole o link do produto" inputmode="url"></div>
+    <div class="field"><label>Link da loja (opcional)</label><input id="f-loja" value="${g ? esc(g.loja||'') : ''}" placeholder="Cole o link do produto" inputmode="url"></div>
     <div class="field"><label>Foto</label>
       <div class="photo-field">
-        <div class="photo-prev ${g && g.foto ? 'has' : ''}" id="f-prev" style="${g && g.foto ? `background-image:url('${esc(g.foto)}')` : ''}">${g && g.foto ? '' : ICON.gift}</div>
+        <div class="photo-prev ${foto ? 'has' : ''}" id="f-prev" style="${foto ? `background-image:url('${esc(foto)}')` : ''}">${foto ? '' : ICON.gift}</div>
         <div class="photo-acts">
-          <label class="up" for="f-file">${ICON.camera} ${g && g.foto ? 'Trocar foto' : 'Tirar ou escolher foto'}</label>
+          <label class="up" for="f-file">${ICON.camera} ${foto ? 'Trocar foto' : 'Tirar ou escolher foto'}</label>
           <input type="file" id="f-file" accept="image/*" hidden>
           <small>Pode ser print da loja ou foto da galeria. A gente reduz o tamanho automaticamente.</small>
         </div>
       </div>
-    </div>`;
+    </div>
+    <label class="check-row"><input type="checkbox" id="f-fav" ${g && g.fav ? 'checked' : ''}> Marcar como favorito</label>`;
 }
 function openEditSheet(id){
   const g = id ? gifts.find(x => x.id === id) : null;
   openSheet(`<h3>${g ? 'Editar presente' : 'Novo presente'}</h3><p>${g ? 'Reservas já feitas não são afetadas.' : 'Esse item entra na lista pros convidados.'}</p>
     ${giftForm(g)}
+    <div class="login-err" id="g-err"></div>
     <button class="btn shine" id="g-save">${g ? 'Salvar alterações' : 'Adicionar à lista'}</button>
     <button class="btn alt" id="g-cancel">Cancelar</button>`);
   $('#g-cancel').onclick = closeSheet;
@@ -602,19 +749,46 @@ function openEditSheet(id){
   $('#f-file').onchange = async ev => {
     const file = ev.target.files[0]; if (!file) return;
     try {
-      pendingPhoto = await shrinkImage(file, 900, .82);
+      pendingPhoto = await shrinkImage(file, 900, .84);
       const prev = $('#f-prev');
-      prev.style.backgroundImage = `url('${pendingPhoto}')`; prev.classList.add('has'); prev.innerHTML = '';
+      prev.style.backgroundImage = `url('${URL.createObjectURL(pendingPhoto)}')`; prev.classList.add('has'); prev.innerHTML = '';
       $('label.up').innerHTML = ICON.camera + ' Trocar foto';
     } catch (e) { toast('Não consegui ler essa imagem.'); }
   };
-  $('#g-save').onclick = () => {
-    const nome = $('#f-nome').value.trim(); if (!nome) return;
-    const data = {nome, cat: $('#f-cat').value, loja: $('#f-loja').value.trim()||'#', qtd: Math.max(1, parseInt($('#f-qtd').value)||1), foto: pendingPhoto || (g && g.foto) || (CATS[$('#f-cat').value]||{}).photo || ''};
-    if (g) Object.assign(g, data);
-    else gifts.push({id: ++uid, reservas: [], ...data});
-    closeSheet(); renderCats(); renderGrid();
-    toast(g ? 'Presente atualizado.' : 'Presente adicionado à lista.');
+  $('#g-save').onclick = async () => {
+    const nome = $('#f-nome').value.trim();
+    const err = $('#g-err');
+    if (!nome) { err.textContent = 'Dê um nome ao presente.'; return; }
+    let loja = $('#f-loja').value.trim();
+    if (loja && !/^https?:\/\//i.test(loja)) loja = 'https://' + loja;
+    const data = {
+      nome, detalhe: $('#f-detalhe').value.trim() || null, cat: $('#f-cat').value,
+      loja: loja || null, qtd: Math.min(50, Math.max(1, parseInt($('#f-qtd').value) || 1)), fav: $('#f-fav').checked,
+    };
+    const b = $('#g-save'); ocupado(b, true, 'Salvando…');
+    try {
+      if (pendingPhoto) {
+        const caminho = `${crypto.randomUUID()}.jpg`;
+        const { error: eu } = await sbN.storage.from('cha').upload(caminho, pendingPhoto, { contentType: 'image/jpeg', cacheControl: '31536000' });
+        if (eu) throw eu;
+        if (g && g.foto && !/^(https?:|img\/)/.test(g.foto)) sbN.storage.from('cha').remove([g.foto]);   // limpa a antiga
+        data.foto = caminho;
+      }
+      if (g) {
+        const { error } = await sbN.from('cha_presentes').update(data).eq('id', g.id);
+        if (error) throw error;
+      } else {
+        data.ordem = gifts.reduce((m, x) => Math.max(m, x.ordem || 0), 0) + 1;
+        const { error } = await sbN.from('cha_presentes').insert(data);
+        if (error) throw error;
+      }
+      closeSheet(); toast(g ? 'Presente atualizado.' : 'Presente adicionado à lista.');
+      await carregar();
+    } catch (e) {
+      console.warn('salvar presente', e);
+      ocupado(b, false);
+      err.textContent = /JWT|sess|auth/i.test(e.message || '') ? 'Sua sessão expirou. Saia e entre de novo.' : 'Não conseguimos salvar. Confira a internet e tente de novo.';
+    }
   };
 }
 /* reduz a foto no próprio celular antes de enviar (lado maior = max px, JPEG) */
@@ -629,7 +803,7 @@ function shrinkImage(file, max, quality){
       ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
       ctx.drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(img.src);
-      resolve(c.toDataURL('image/jpeg', quality));
+      c.toBlob(b => b ? resolve(b) : reject(new Error('toBlob')), 'image/jpeg', quality);
     };
     img.onerror = reject;
     img.src = URL.createObjectURL(file);
@@ -637,16 +811,36 @@ function shrinkImage(file, max, quality){
 }
 function openDeleteSheet(id){
   const g = gifts.find(x => x.id === id); if (!g) return;
-  openSheet(`<h3>Remover presente?</h3><p>"${esc(g.nome)}" vai sair da lista${g.reservas.length ? ' — já tinha '+g.reservas.length+' reserva(s)' : ''}.</p>
+  openSheet(`<h3>Remover presente?</h3><p>"${esc(g.nome)}" vai sair da lista${g.reservadas ? `. Ele já tinha ${g.reservadas} reserva${g.reservadas > 1 ? 's' : ''}, que também serão apagadas` : ''}.</p>
+    <div class="login-err" id="d-err"></div>
     <button class="btn danger" id="d-ok">Remover</button>
     <button class="btn alt" id="d-no">Manter</button>`);
-  $('#d-ok').onclick = () => { gifts = gifts.filter(x => x.id !== id); closeSheet(); renderCats(); renderGrid(); toast('Presente removido.'); };
+  $('#d-ok').onclick = async () => {
+    const b = $('#d-ok'); ocupado(b, true, 'Removendo…');
+    try {
+      const { error } = await sbN.from('cha_presentes').delete().eq('id', id);
+      if (error) throw error;
+      if (g.foto && !/^(https?:|img\/)/.test(g.foto)) sbN.storage.from('cha').remove([g.foto]);
+      closeSheet(); toast('Presente removido.'); await carregar();
+    } catch (e) { ocupado(b, false); $('#d-err').textContent = 'Não conseguimos remover. Tente de novo.'; }
+  };
   $('#d-no').onclick = closeSheet;
 }
+
+function renderPixAvisos(){
+  const box = $('#pix-avisos');
+  if (!EDITOR) { box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = `<small>Avisos de PIX</small>` + (pixAvisos.length
+    ? pixAvisos.map(a => `<span>${esc(a.nome || 'Alguém sem nome')}<i>${new Date(a.criado_em).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})}</i></span>`).join('')
+    : `<em>Ninguém avisou ainda. Quando um convidado tocar em “Já contribuí”, o nome aparece aqui.</em>`);
+}
+
 function aplicarModo(){
   document.body.classList.toggle('editor', EDITOR);
   $('#editor-banner').hidden = !EDITOR;
   $('#fab-add').hidden = !EDITOR;
+  renderPixAvisos();
 }
 $('#fab-add').onclick = () => openEditSheet(null);
 
@@ -658,14 +852,26 @@ function openLoginSheet(){
     <button class="btn alt" id="lg-no">Voltar</button>`);
   const inp = $('#lg-senha');
   setTimeout(() => inp.focus(), 320);
-  const tentar = () => {
-    if (inp.value.trim().toLowerCase() === SENHA_DEMO) {
-      EDITOR = true; sessionStorage.setItem('cha-noivos', '1');
-      closeSheet(); aplicarModo(); renderGrid();
+  const tentar = async () => {
+    if (!sbN) { $('#lg-err').textContent = 'A lista ainda não foi conectada.'; return; }
+    if (!inp.value) return;
+    const b = $('#lg-ok'); ocupado(b, true, 'Entrando…'); $('#lg-err').textContent = '';
+    try {
+      const { error } = await sbN.auth.signInWithPassword({ email: EMAIL_NOIVOS, password: inp.value });
+      if (error) throw error;
+      const { data: ok } = await sbN.rpc('eh_noivo');
+      if (!ok) { await sbN.auth.signOut(); throw new Error('Invalid login credentials'); }
+      EDITOR = true;
+      closeSheet(); aplicarModo(); await carregar();
       window.scrollTo(0, 0); if (window.__lenis) window.__lenis.scrollTo(0, {immediate:true});
       toast('Bem-vindos, Brenda e Luan!');
-    } else {
-      $('#lg-err').textContent = 'Senha incorreta.'; inp.select();
+    } catch (e) {
+      ocupado(b, false);
+      const m = e.message || '';
+      $('#lg-err').textContent = /Invalid login/i.test(m) ? 'Senha incorreta.'
+        : /rate limit|too many/i.test(m) ? 'Muitas tentativas. Espere alguns minutos.'
+        : 'Não conseguimos entrar agora. Confira a internet.';
+      inp.select();
     }
   };
   $('#lg-ok').onclick = tentar;
@@ -673,13 +879,12 @@ function openLoginSheet(){
   $('#lg-no').onclick = closeSheet;
 }
 $('#entrar-noivos').onclick = openLoginSheet;
-$('#sair-noivos').onclick = () => {
-  EDITOR = false; sessionStorage.removeItem('cha-noivos');
-  aplicarModo(); renderGrid(); toast('Vocês saíram da área dos noivos.');
+$('#sair-noivos').onclick = async () => {
+  EDITOR = false; aplicarModo();
+  try { await sbN.auth.signOut(); } catch (e) {}
+  await carregar(); toast('Vocês saíram da área dos noivos.');
 };
-// atalho antigo continua abrindo o login (nunca entra direto)
-if (new URLSearchParams(location.search).has('editar') && !EDITOR) setTimeout(openLoginSheet, 600);
-aplicarModo();
+if (new URLSearchParams(location.search).has('editar')) setTimeout(() => { if (!EDITOR) openLoginSheet(); }, 600);
 
 /* ====== realces visuais (progressive enhancement) ====== */
 function initSmoothScroll(){
@@ -691,22 +896,32 @@ function initSmoothScroll(){
   }catch(e){}
 }
 function initReveals(){
-  // animações simples, sem scroll-trigger: evita qualquer risco de conteúdo
-  // ficar travado em opacity:0 se o cálculo de scroll não bater (ex: com Lenis).
+  // animações simples, sem scroll-trigger: nada pode ficar travado em opacity:0
   try{
     if (!window.gsap) return;
     gsap.from('.hero-in > *', {opacity:0, y:18, duration:.8, stagger:.09, ease:'power3.out', delay:.05});
     gsap.from('.how-step', {opacity:0, y:12, duration:.6, stagger:.08, ease:'power2.out', delay:.35});
     gsap.from('.recado-foto, .recado-txt > *', {opacity:0, y:16, duration:.7, stagger:.08, ease:'power2.out', delay:.3});
-    gsap.from('.card', {opacity:0, y:18, duration:.5, stagger:.04, ease:'power2.out', delay:.4});
+    gsap.from('.card', {opacity:0, y:18, duration:.5, stagger:.04, ease:'power2.out', delay:.15});
   }catch(e){}
-  // rede de segurança: garante que nada fique invisível mesmo se a animação falhar
   setTimeout(() => $$('.hero-in > *,.how-step,.recado-foto,.recado-txt > *,.card').forEach(el => { el.style.opacity=''; el.style.transform=''; }), 2200);
 }
 
-renderCats();
-renderGrid();
-initSmoothScroll();
+/* ====== início ====== */
+(async () => {
+  renderCats(); renderGrid(); initSmoothScroll();
+  if (sbN) {
+    // noivos que já tinham entrado neste aparelho continuam dentro
+    try {
+      const { data: { session } } = await sbN.auth.getSession();
+      if (session) { const { data: ok } = await sbN.rpc('eh_noivo'); EDITOR = !!ok; if (!ok) await sbN.auth.signOut(); }
+    } catch (e) {}
+  }
+  aplicarModo();
+  await carregar();
+  // a lista se atualiza sozinha quando o convidado volta para a aba
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && carregado) carregar(); });
+})();
 </script>
 </body>
 </html>
