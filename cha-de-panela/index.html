@@ -246,6 +246,21 @@ a{color:inherit}
 .check-row{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;color:var(--ink);margin:-4px 0 12px}
 .check-row input{width:19px;height:19px;accent-color:var(--navy)}
 .pix-tit{margin:-6px 0 16px!important;font-size:13px!important}
+.escolhidos{margin:0 0 26px;background:#fff;border:1px solid rgba(199,154,91,.35);border-radius:18px;padding:18px 18px 10px}
+.esc-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
+.esc-head small{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
+.esc-head span{font-size:12.5px;color:var(--muted)}
+.esc-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.esc-row:first-of-type{border-top:0}
+.esc-thumb{width:46px;height:46px;flex:none;border-radius:10px;background:#F7F5F1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.esc-thumb img{width:100%;height:100%;object-fit:contain;padding:4px}
+.esc-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left}
+.esc-txt b{font-family:var(--serif);font-weight:500;font-size:16.5px;line-height:1.2;color:var(--navy);overflow-wrap:anywhere}
+.esc-txt span{font-size:12.5px;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+.esc-txt span i{font-style:normal;font-weight:400;color:var(--muted)}
+.esc-vazio{font-size:13px;color:var(--muted);padding:4px 0 10px;line-height:1.5}
+.esc-mais{display:flex;justify-content:center;border-top:1px solid var(--line)}
+.esc-mais button{min-height:44px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--navy);background:none;border:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .pix-avisos{margin-top:14px;background:#fff;border:1px solid rgba(199,154,91,.35);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
 .pix-avisos small{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
 .pix-avisos span{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--navy);border-top:1px solid var(--line);padding-top:8px}
@@ -324,6 +339,7 @@ a{color:inherit}
 </section>
 
 <main class="wrap" id="lista">
+  <section class="escolhidos" id="escolhidos" hidden></section>
   <div class="count-row">
     <h2>Lista de presentes</h2>
     <span id="count-label"></span>
@@ -457,9 +473,11 @@ async function carregarNomes(){
   if (e1 || e2) throw (e1 || e2);
   const por = {};
   rs.forEach(r => (por[r.presente_id] ||= []).push({ id: r.id, nome: r.nome }));
+  reservas = rs;
   gifts.forEach(g => g.quem = por[g.id] || []);
   pixAvisos = px;
   renderPixAvisos();
+  renderEscolhidos();
 }
 
 /* ====== categorias ====== */
@@ -865,6 +883,35 @@ function openLiberarSheet(giftId, reservaId){
   $('#lb-no').onclick = closeSheet;
 }
 
+/* painel dos noivos: todos os presentes escolhidos, do mais recente pro mais antigo */
+let reservas = [], escTodos = false;
+const ESC_PRIMEIROS = 6;
+function renderEscolhidos(){
+  const box = $('#escolhidos');
+  if (!EDITOR) { box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  const porId = Object.fromEntries(gifts.map(g => [g.id, g]));
+  const lista = reservas.filter(r => porId[r.presente_id]).slice().reverse();
+  const dia = d => new Date(d).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+  const linhas = (escTodos ? lista : lista.slice(0, ESC_PRIMEIROS)).map(r => {
+    const g = porId[r.presente_id], foto = fotoUrl(g.foto);
+    return `<div class="esc-row">
+      <span class="esc-thumb">${foto ? `<img src="${esc(foto)}" alt="" loading="lazy">` : ICON.gift}</span>
+      <span class="esc-txt"><b>${esc(g.nome)}</b><span>${esc(r.nome)} <i>· ${dia(r.criado_em)}</i></span></span>
+      <button class="liberar" data-liberar="${r.id}" data-gift="${g.id}">liberar</button>
+    </div>`;
+  }).join('');
+  const n = lista.length, pix = pixAvisos.length;
+  box.innerHTML = `<div class="esc-head"><small>Presentes escolhidos</small><span>${n} ${n === 1 ? 'presente' : 'presentes'}${pix ? ` · ${pix} ${pix === 1 ? 'aviso' : 'avisos'} de PIX` : ''}</span></div>`
+    + (n ? linhas : `<div class="esc-vazio">Ninguém escolheu ainda. Quando um convidado escolher, aparece aqui com o nome e o dia.</div>`)
+    + (n > ESC_PRIMEIROS ? `<div class="esc-mais"><button id="esc-toggle">${escTodos ? 'Mostrar menos' : `Ver todos (${n})`}</button></div>` : '');
+  const tg = $('#esc-toggle'); if (tg) tg.onclick = () => { escTodos = !escTodos; renderEscolhidos(); };
+}
+$('#escolhidos').addEventListener('click', e => {
+  const lib = e.target.closest('[data-liberar]');
+  if (lib) openLiberarSheet(lib.dataset.gift, lib.dataset.liberar);
+});
+
 function renderPixAvisos(){
   const box = $('#pix-avisos');
   if (!EDITOR) { box.hidden = true; return; }
@@ -879,6 +926,7 @@ function aplicarModo(){
   $('#editor-banner').hidden = !EDITOR;
   $('#fab-add').hidden = !EDITOR;
   renderPixAvisos();
+  renderEscolhidos();
 }
 $('#fab-add').onclick = () => openEditSheet(null);
 
@@ -901,7 +949,8 @@ function openLoginSheet(){
       if (!ok) { await sbN.auth.signOut(); throw new Error('Invalid login credentials'); }
       EDITOR = true;
       closeSheet(); aplicarModo(); await carregar();
-      window.scrollTo(0, 0); if (window.__lenis) window.__lenis.scrollTo(0, {immediate:true});
+      const alvoY = $('#escolhidos').getBoundingClientRect().top + scrollY - 64;
+      window.scrollTo(0, alvoY); if (window.__lenis) window.__lenis.scrollTo(alvoY, {immediate:true});
       toast('Bem-vindos, Brenda e Luan!');
     } catch (e) {
       ocupado(b, false);
