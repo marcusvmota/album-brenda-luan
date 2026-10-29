@@ -32,9 +32,10 @@ a{color:inherit}
 
 /* ============ HERO ============ */
 .hero{position:relative;min-height:min(560px,80vh);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;color:#fff;text-align:center}
-.hero-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=1600&q=72&auto=format') center 30%/cover;transform:scale(1.02)}
+.hero-bg{position:absolute;inset:0;background:#0b0f16 url('img/hero.jpg') 46% 28%/cover;transform:scale(1.02)}
 .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,20,32,.30) 0%,rgba(12,20,32,.10) 30%,rgba(12,20,32,.45) 60%,rgba(15,27,43,.90) 100%)}
 .hero-in{position:relative;z-index:1;padding:28px 24px 46px;max-width:720px;margin:0 auto;width:100%}
+@media (min-width:900px){ .hero{min-height:min(780px,90vh)} .hero-bg{background-position:46% 24%} }
 .kick{display:inline-flex;align-items:center;gap:14px;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:rgba(255,255,255,.88);font-weight:600}
 .kick::before,.kick::after{content:"";width:26px;height:1px;background:var(--gold)}
 .hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(48px,11vw,76px);line-height:.98;margin-top:16px;color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.35)}
@@ -370,6 +371,8 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 /* ====== configuração ====== */
 const CFG = window.CHA_CONFIG || {};
 const PIX_KEY = CFG.pix || '';
+// chave celular (11 dígitos) aparece formatada; o botão Copiar leva só os números
+const pixVisivel = k => /^\d{11}$/.test(k) && k[2] === '9' ? `(${k.slice(0,2)}) ${k.slice(2,7)}-${k.slice(7)}` : k;
 const EMAIL_NOIVOS = CFG.emailNoivos || 'noivos@brendaeluan.app';
 const TEM_BANCO = !!(CFG.supabaseUrl && CFG.supabaseKey && window.supabase);
 let EDITOR = false;
@@ -708,8 +711,8 @@ $('#cta-pix').onclick = () => $('#btn-pix').click();
 /* ====== pix ====== */
 $('#btn-pix').addEventListener('click', () => {
   openSheet(`<h3>Contribuir via PIX</h3><p>Qualquer valor ajuda, sem precisar escolher um item da lista.</p>
-    <div class="pixbox"><code>${esc(PIX_KEY)}</code><button class="btn alt" style="width:auto;height:44px;padding:0 16px;margin:0" id="pix-copy">Copiar</button></div>
-    ${CFG.pixTitular ? `<p class="pix-tit">Em nome de <b>${esc(CFG.pixTitular)}</b></p>` : ''}
+    <div class="pixbox"><code>${esc(pixVisivel(PIX_KEY))}</code><button class="btn alt" style="width:auto;height:44px;padding:0 16px;margin:0" id="pix-copy">Copiar</button></div>
+    ${CFG.pixTitular ? `<p class="pix-tit">Em nome de <b>${esc(CFG.pixTitular)}</b>${CFG.pixBanco ? ` · ${esc(CFG.pixBanco)}` : ''}</p>` : ''}
     <div class="field"><label>Seu nome (opcional)</label><input id="pix-nome" placeholder="Pra avisarmos os noivos" maxlength="60" value="${esc(localStorage.getItem('cha-nome') || '')}"></div>
     <button class="btn shine" id="pix-ok">Já contribuí</button>`);
   $('#pix-copy').onclick = async () => {

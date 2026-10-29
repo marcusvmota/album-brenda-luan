@@ -3,8 +3,9 @@ window.CHA_CONFIG = {
   "supabaseUrl": "https://qdwfogegyhgwhyxhnkcb.supabase.co",
   "supabaseKey": "sb_publishable_BIBcKnAkgWkKSgqV0eHgAg_q291J9Nv",
   "emailNoivos": "noivos@brendaeluan.app",
-  "pix": "chadepanela.brendaluan@pix.exemplo",
-  "pixTitular": "",
+  "pix": "83988391380",
+  "pixTitular": "Brenda Teixeira Figueiredo",
+  "pixBanco": "Mercado Pago",
   "evento": {
     "inicio": "2026-12-12T15:00:00-03:00",
     "cidade": "Imbituba",
