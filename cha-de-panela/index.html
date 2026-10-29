@@ -310,7 +310,7 @@ a{color:inherit}
   <figure class="recado-foto"><img src="img/casal.jpg" alt="Brenda e Luan"><figcaption>Brenda &amp; Luan</figcaption></figure>
   <div class="recado-txt">
     <small>Um recado nosso</small>
-    <p>Cada presente desta lista vai fazer parte do nosso dia a dia, do primeiro café da manhã aos jantares com quem a gente ama. Obrigado por estar com a gente nesse começo.</p>
+    <p>Cada presente desta lista vai fazer parte do nosso dia a dia, do primeiro café da manhã aos jantares com quem a gente ama. Obrigado por estar com a gente nesse começo. Que o nosso bom Deus continue abençoando cada um de vocês!</p>
     <span class="ass">Brenda &amp; Luan</span>
   </div>
 </section>
@@ -867,7 +867,7 @@ function openDeleteSheet(id){
 function openLiberarSheet(giftId, reservaId){
   const g = gifts.find(x => x.id === giftId); if (!g || !EDITOR) return;
   const r = g.quem.find(x => x.id === reservaId); if (!r) return;
-  openSheet(`<h3>Liberar presente?</h3><p>A escolha de <b>${esc(r.nome)}</b> em "${esc(g.nome)}" será apagada e o presente volta a ficar disponível pros convidados. Use quando a pessoa desistir e não conseguir cancelar pelo celular dela.</p>
+  openSheet(`<h3>Liberar presente?</h3><p>A reserva de <b>${esc(r.nome)}</b> em "${esc(g.nome)}" será apagada e o presente volta a ficar disponível pros convidados. Use quando a pessoa desistir e não conseguir cancelar pelo celular dela.</p>
     <div class="login-err" id="lb-err"></div>
     <button class="btn danger" id="lb-ok">Liberar presente</button>
     <button class="btn alt" id="lb-no">Manter</button>`);
@@ -883,7 +883,7 @@ function openLiberarSheet(giftId, reservaId){
   $('#lb-no').onclick = closeSheet;
 }
 
-/* painel dos noivos: todos os presentes escolhidos, do mais recente pro mais antigo */
+/* painel dos noivos: todos os presentes reservados, do mais recente pro mais antigo */
 let reservas = [], escTodos = false;
 const ESC_PRIMEIROS = 6;
 function renderEscolhidos(){
@@ -902,8 +902,8 @@ function renderEscolhidos(){
     </div>`;
   }).join('');
   const n = lista.length, pix = pixAvisos.length;
-  box.innerHTML = `<div class="esc-head"><small>Presentes escolhidos</small><span>${n} ${n === 1 ? 'presente' : 'presentes'}${pix ? ` · ${pix} ${pix === 1 ? 'aviso' : 'avisos'} de PIX` : ''}</span></div>`
-    + (n ? linhas : `<div class="esc-vazio">Ninguém escolheu ainda. Quando um convidado escolher, aparece aqui com o nome e o dia.</div>`)
+  box.innerHTML = `<div class="esc-head"><small>Presentes reservados</small><span>${n} ${n === 1 ? 'presente' : 'presentes'}${pix ? ` · ${pix} ${pix === 1 ? 'aviso' : 'avisos'} de PIX` : ''}</span></div>`
+    + (n ? linhas : `<div class="esc-vazio">Nenhum presente reservado ainda. Quando um convidado reservar, aparece aqui com o nome e o dia.</div>`)
     + (n > ESC_PRIMEIROS ? `<div class="esc-mais"><button id="esc-toggle">${escTodos ? 'Mostrar menos' : `Ver todos (${n})`}</button></div>` : '');
   const tg = $('#esc-toggle'); if (tg) tg.onclick = () => { escTodos = !escTodos; renderEscolhidos(); };
 }
