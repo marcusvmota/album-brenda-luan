@@ -181,7 +181,21 @@ a{color:inherit}
 .card.taken .body b{color:var(--muted)}
 .card.taken{cursor:default}
 .card.taken:hover{transform:none;border-color:rgba(31,59,92,.09);box-shadow:0 1px 2px rgba(17,32,51,.03)}
-.card.mine-card{border-color:rgba(199,154,91,.45)}
+.card.mine-card{border-color:rgba(199,154,91,.5);background:linear-gradient(180deg,rgba(199,154,91,.06),rgba(255,255,255,0) 60%)}
+.card.mine-card .thumb img{opacity:.55;filter:saturate(.75)}
+.card.mine-card .body b{color:#5d6b7a}
+.card.mine-card{cursor:default}
+.card.mine-card:hover .thumb img{transform:none}
+.mine-badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;background:var(--gold-2);color:#fff;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;padding:7px 13px 7px 11px;border-radius:999px;box-shadow:0 6px 18px rgba(120,86,40,.25);white-space:nowrap}
+.mine-badge .ico{width:11px;height:11px}
+.mine-note{margin-top:auto;font-family:var(--serif);font-style:italic;font-size:15px;color:var(--gold-2);line-height:1.3}
+.mine-links{display:flex;justify-content:center;align-items:center;gap:2px 14px;flex-wrap:wrap}
+.mine-links a,.mine-links button{min-height:44px;display:inline-flex;align-items:center;font-size:12px;color:var(--muted);text-decoration:underline;text-decoration-color:var(--sand);text-underline-offset:3px;background:none;border:0;padding:0 2px;cursor:pointer}
+.mine-links a:hover,.mine-links button:hover{color:var(--navy)}
+.giver{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.giver em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.35;overflow-wrap:anywhere;text-align:left}
+.liberar{min-height:44px;flex:none;background:none;border:0;padding:0 2px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--gold-2);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.liberar:hover{color:var(--navy)}
 .edit-row{position:absolute;right:15px;top:15px;display:flex;gap:6px;z-index:5}
 .edit-dot{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:var(--navy)}
 .edit-dot .ico{width:12px;height:12px}
@@ -434,12 +448,12 @@ async function carregar(){
 }
 async function carregarNomes(){
   const [{ data: rs, error: e1 }, { data: px, error: e2 }] = await Promise.all([
-    sbN.from('cha_reservas').select('presente_id,nome,criado_em').order('criado_em'),
+    sbN.from('cha_reservas').select('id,presente_id,nome,criado_em').order('criado_em'),
     sbN.from('cha_pix_avisos').select('nome,criado_em').order('criado_em', { ascending: false }),
   ]);
   if (e1 || e2) throw (e1 || e2);
   const por = {};
-  rs.forEach(r => (por[r.presente_id] ||= []).push(r.nome));
+  rs.forEach(r => (por[r.presente_id] ||= []).push({ id: r.id, nome: r.nome }));
   gifts.forEach(g => g.quem = por[g.id] || []);
   pixAvisos = px;
   renderPixAvisos();
@@ -479,9 +493,9 @@ function cardHTML(g){
   let footer;
   // convidados não veem quem deu; os noivos veem o nome completo de todos
   const quem = EDITOR && g.quem.length
-    ? `<div class="givers"><small>Presenteado por</small>${g.quem.map(n => `<span>${esc(n)}</span>`).join('')}</div>`
+    ? `<div class="givers"><small>Presenteado por</small>${g.quem.map(r => `<span class="giver"><em>${esc(r.nome)}</em><button class="liberar" data-liberar="${r.id}" data-gift="${g.id}">liberar</button></span>`).join('')}</div>`
     : '';
-  if (mine) footer = `<button class="pick-btn mine" data-cancel="${g.id}">${ICON.check} Seu · cancelar</button>`;
+  if (mine) footer = `<div class="mine-note">Você vai dar este presente</div><div class="mine-links">${g.loja ? `<a href="${esc(g.loja)}" target="_blank" rel="noopener">ver na loja ↗</a>` : ''}<button data-cancel="${g.id}">cancelar</button></div>`;
   else if (taken) footer = EDITOR ? '' : `<div class="taken-by">já presenteado</div>`;
   else footer = `<button class="pick-btn" data-pick="${g.id}">Presentear</button>`;
   footer = quem + footer;
@@ -490,7 +504,7 @@ function cardHTML(g){
   return `<div class="card ${taken && !mine ? 'taken' : ''} ${mine ? 'mine-card' : ''}" data-card="${g.id}">
     <div class="thumb fit">
       ${foto ? `<img src="${esc(foto)}" alt="${esc(g.nome)}" loading="lazy">` : `<span class="thumb-empty">${ICON.gift}</span>`}
-      ${g.fav && !taken ? `<span class="fav-badge">${ICON.star} favorito</span>` : ''}
+      ${mine ? `<span class="mine-badge">${ICON.check} Seu presente</span>` : (g.fav && !taken ? `<span class="fav-badge">${ICON.star} favorito</span>` : '')}
     </div>
     ${EDITOR ? `<div class="edit-row"><button class="edit-dot" data-edit="${g.id}" aria-label="Editar">${ICON.pencil}</button><button class="edit-dot" data-del="${g.id}" aria-label="Remover">${ICON.trash}</button></div>` : ''}
     <div class="body">
@@ -587,6 +601,8 @@ $('#grid').addEventListener('click', e => {
   const cancel = e.target.closest('[data-cancel]');
   const edit = e.target.closest('[data-edit]');
   const del = e.target.closest('[data-del]');
+  const lib = e.target.closest('[data-liberar]');
+  if (lib) return openLiberarSheet(lib.dataset.gift, lib.dataset.liberar);
   if (pick) return openPickSheet(pick.dataset.pick);
   if (cancel) return openCancelSheet(cancel.dataset.cancel);
   if (edit) return openEditSheet(edit.dataset.edit);
@@ -825,6 +841,25 @@ function openDeleteSheet(id){
     } catch (e) { ocupado(b, false); $('#d-err').textContent = 'Não conseguimos remover. Tente de novo.'; }
   };
   $('#d-no').onclick = closeSheet;
+}
+
+function openLiberarSheet(giftId, reservaId){
+  const g = gifts.find(x => x.id === giftId); if (!g || !EDITOR) return;
+  const r = g.quem.find(x => x.id === reservaId); if (!r) return;
+  openSheet(`<h3>Liberar presente?</h3><p>A escolha de <b>${esc(r.nome)}</b> em "${esc(g.nome)}" será apagada e o presente volta a ficar disponível pros convidados. Use quando a pessoa desistir e não conseguir cancelar pelo celular dela.</p>
+    <div class="login-err" id="lb-err"></div>
+    <button class="btn danger" id="lb-ok">Liberar presente</button>
+    <button class="btn alt" id="lb-no">Manter</button>`);
+  $('#lb-ok').onclick = async () => {
+    const b = $('#lb-ok'); ocupado(b, true, 'Liberando…');
+    try {
+      const { data, error } = await sbN.from('cha_reservas').delete().eq('id', reservaId).select('id');
+      if (error) throw error;
+      if (!data || !data.length) throw new Error('nada apagado');
+      closeSheet(); toast('Presente liberado.'); await carregar();
+    } catch (e) { ocupado(b, false); $('#lb-err').textContent = 'Não conseguimos liberar. Tente de novo.'; }
+  };
+  $('#lb-no').onclick = closeSheet;
 }
 
 function renderPixAvisos(){
