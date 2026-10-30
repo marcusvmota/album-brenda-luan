@@ -61,8 +61,7 @@ a{color:inherit}
 /* ============ HERO ============ */
 .hero{position:relative;min-height:min(560px,80vh);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;color:#fff;text-align:center}
 .hero-bg{position:absolute;inset:0;background:#0b0f16 url('img/hero.jpg') 46% 28%/cover;transform:scale(1.02)}
-.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;opacity:0;transition:opacity 1.2s ease}
-.hero-video.on{opacity:1}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;background:transparent}
 .hero-cenas{position:absolute;inset:0;overflow:hidden;opacity:0;transition:opacity 1.2s ease}
 .hero-cenas.on{opacity:1}
 .hero-cenas img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;opacity:0;will-change:opacity,transform;animation:cena 20s linear infinite}
@@ -346,7 +345,7 @@ a{color:inherit}
 <div class="editor-banner" id="editor-banner" hidden><span>Área dos noivos</span><button id="sair-noivos">Sair</button></div>
 
 <header class="hero">
-  <div class="hero-bg"><video class="hero-video" id="hero-video" muted loop playsinline preload="none" aria-hidden="true"></video></div>
+  <div class="hero-bg"><video class="hero-video" id="hero-video" muted autoplay loop playsinline webkit-playsinline preload="auto" aria-hidden="true"></video></div>
   <div class="hero-in">
     <span class="kick">Chá de panela</span>
     <h1>Brenda <i>&amp;</i> Luan</h1>
@@ -1029,44 +1028,55 @@ if (new URLSearchParams(location.search).has('editar')) setTimeout(() => { if (!
 
 /* ====== vídeo do topo: só entra quando já está tocando; se não tocar, fica a foto ====== */
 /* ====== vídeo do topo ======
-   Tenta o <video>. No celular, se o iPhone recusar (Pouca Energia / economia de dados), mostra por cima uma
-   imagem animada (WebP) — e continua tentando o vídeo de verdade no primeiro toque (o "Entrar" já é um).
-   Assim que o vídeo começa, ele aparece e a imagem animada sai. Computador: se falhar, fica a foto. */
+   O vídeo fica SEMPRE visível (o iPhone não toca automaticamente vídeo invisível), começando no 1º quadro.
+   Se em ~3 s ele não estiver andando de verdade (currentTime parado — Pouca Energia, economia de dados),
+   no celular entram as cenas do vídeo com fade/zoom em CSS; qualquer toque tenta o vídeo de novo e,
+   quando ele anda, as cenas saem. ?diag mostra o que o aparelho fez. */
 const heroVideo = (function(){
   const v = $('#hero-video'); if (!v) return null;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v.remove(); return null; }
   const celular = window.matchMedia('(max-width: 700px)').matches;
+  const diag = new URLSearchParams(location.search).has('diag');
+  const log = (...a) => { if (!diag) return; let d = $('#diag'); if (!d) { d = document.createElement('pre'); d.id = 'diag';
+    d.style.cssText = 'position:fixed;left:6px;top:6px;right:6px;z-index:99;max-height:45vh;overflow:auto;margin:0;padding:8px;background:rgba(0,0,0,.78);color:#9f9;font:11px/1.35 monospace;white-space:pre-wrap';
+    document.body.appendChild(d); } d.textContent += a.join(' ') + '\n'; };
   let anim = null;
-  const usarImagemAnimada = () => {
-    // iPhone recusou o vídeo (Pouca Energia): cenas do próprio vídeo trocando com fade + zoom lento.
-    // Só opacity/transform em CSS — o iPhone anima isso liso mesmo em Pouca Energia.
-    if (anim || !celular || !v.paused) return;
+  const andando = () => !v.paused && v.currentTime > 0.05;
+  const usarCenas = (motivo) => {
+    log('cenas:', motivo);
+    if (anim || !celular || andando()) return;
     anim = document.createElement('div');
     anim.className = 'hero-cenas'; anim.setAttribute('aria-hidden', 'true');
     let prontas = 0;
     for (let n = 1; n <= 5; n++) {
       const im = new Image(); im.alt = ''; im.decoding = 'async';
-      im.onload = () => { if (++prontas === 1 && anim && v.paused) { v.after(anim); requestAnimationFrame(() => anim && anim.classList.add('on')); } };
+      im.onload = () => { if (++prontas === 1 && anim && !andando()) { v.after(anim); requestAnimationFrame(() => anim && anim.classList.add('on')); } };
       im.src = 'img/cena-' + n + '.jpg';
       anim.appendChild(im);
     }
   };
-  const tirarImagemAnimada = () => {
+  const tirarCenas = () => {
     if (!anim) return; const a = anim; anim = null;
     a.classList.remove('on'); setTimeout(() => a.remove(), 1300);
   };
-  v.muted = true; v.defaultMuted = true; v.playsInline = true;
-  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+  v.muted = true; v.defaultMuted = true; v.playsInline = true; v.autoplay = true;
+  v.poster = celular ? 'img/hero-celular-poster.jpg' : 'img/hero-poster.jpg';
   v.src = celular ? 'img/hero-celular.mp4' : 'img/hero.mp4';
-  v.addEventListener('playing', () => { clearTimeout(limite); v.classList.add('on'); tirarImagemAnimada(); tirarOuvintes(); });
-  const tentar = () => { if (!v.paused) return; const p = v.play(); if (p && p.catch) p.catch(usarImagemAnimada); };
-  const limite = setTimeout(() => { if (v.paused) usarImagemAnimada(); }, 3500);
+  ['loadedmetadata', 'canplay', 'playing', 'pause', 'stalled', 'suspend', 'error'].forEach(e => v.addEventListener(e, () => log('video:', e, 't=' + v.currentTime.toFixed(2), 'paused=' + v.paused, 'rs=' + v.readyState)));
+  v.addEventListener('timeupdate', () => { if (v.currentTime > 0.05) { tirarCenas(); tirarOuvintes(); } });
+  const tentar = (de) => {
+    if (andando()) return;
+    let p; try { p = v.play(); } catch (e) { log('play() lançou', e.name); return usarCenas('erro'); }
+    if (p && p.then) p.then(() => log('play ok', de || ''), (e) => { log('play recusado', de || '', e.name, e.message); usarCenas('recusado'); });
+  };
+  setTimeout(() => { if (!andando()) usarCenas('não andou em 3s'); }, 3000);
   const eventos = ['touchend', 'click', 'keydown'];
-  const noToque = () => tentar();
+  const noToque = () => tentar('toque');
   const tirarOuvintes = () => eventos.forEach(e => document.removeEventListener(e, noToque, true));
   eventos.forEach(e => document.addEventListener(e, noToque, true));
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) tentar(); });
-  tentar();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) tentar('voltou'); });
+  log('ua:', navigator.userAgent.slice(0, 120));
+  tentar('início');
   return { tentar };
 })();
 
