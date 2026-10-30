@@ -1021,14 +1021,27 @@ $('#sair-noivos').onclick = async () => {
 if (new URLSearchParams(location.search).has('editar')) setTimeout(() => { if (!EDITOR) openLoginSheet(); }, 600);
 
 /* ====== vídeo do topo: só entra quando já está tocando; se não tocar, fica a foto ====== */
-(function(){
-  const v = $('#hero-video'); if (!v) return;
+/* ====== vídeo do topo ======
+   Some fica a foto até o vídeo estar realmente tocando. O iPhone pode recusar o autoplay
+   (modo Pouca Energia, economia de dados): aí tentamos de novo no primeiro toque
+   (o "Entrar" da abertura já é esse toque). */
+const heroVideo = (function(){
+  const v = $('#hero-video'); if (!v) return null;
   const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const economia = navigator.connection && navigator.connection.saveData;
-  if (semMovimento || economia) { v.remove(); return; }
+  if (semMovimento) { v.remove(); return null; }
+  v.muted = true; v.defaultMuted = true; v.playsInline = true;
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
   v.src = window.matchMedia('(max-width: 700px)').matches ? 'img/hero-celular.mp4' : 'img/hero.mp4';
-  v.addEventListener('playing', () => v.classList.add('on'), { once: true });
-  v.play().catch(() => v.remove());
+  v.addEventListener('playing', () => v.classList.add('on'));
+  const tentar = () => { if (!v.paused) return; const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+  const noToque = () => { tentar(); if (!v.paused) tirar(); };
+  const eventos = ['touchend', 'click', 'keydown'];
+  const tirar = () => eventos.forEach(e => document.removeEventListener(e, noToque, true));
+  eventos.forEach(e => document.addEventListener(e, noToque, true));
+  v.addEventListener('playing', tirar, { once: true });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) tentar(); });
+  tentar();
+  return { tentar };
 })();
 
 /* ====== abertura + música ====== */
@@ -1061,6 +1074,7 @@ function entrarNoSite(){
   const ab = $('#abertura');
   try { sessionStorage.setItem('cha-entrou', '1'); } catch (e) {}
   tocar();                                   // dentro do toque: o celular libera o som
+  if (heroVideo) heroVideo.tentar();          // idem para o vídeo (iPhone em Pouca Energia)
   ab.classList.add('sai');
   document.documentElement.classList.remove('abertura-on');
   if (window.__lenis) window.__lenis.start();
