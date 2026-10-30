@@ -320,7 +320,7 @@ a{color:inherit}
 .foot em{display:block;margin-top:6px;font-family:var(--serif);font-style:italic;font-size:21px;color:var(--navy)}
 
 @media (max-width:540px){ .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px} .card{padding:5px;border-radius:14px} .thumb{border-radius:10px} .body{padding:11px 4px 5px} .body b{font-size:17px} .meta{font-size:10.5px} .pick-btn{height:40px;font-size:9.5px;letter-spacing:.14em} .edit-row{right:11px;top:11px} .pix-card{flex-direction:column;align-items:stretch;text-align:center;padding:30px 22px} .pix-btn{width:100%} .how-step span{font-size:11.5px} }
-@media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important;animation-iteration-count:1!important} }
+@media (prefers-reduced-motion:reduce){ *:not(.hero-cenas img){animation-duration:.001ms!important;animation-iteration-count:1!important} }
 </style>
 </head>
 <body>
@@ -1033,13 +1033,16 @@ if (new URLSearchParams(location.search).has('editar')) setTimeout(() => { if (!
    no celular entram as cenas do vídeo com fade/zoom em CSS; qualquer toque tenta o vídeo de novo e,
    quando ele anda, as cenas saem. ?diag mostra o que o aparelho fez. */
 const heroVideo = (function(){
-  const v = $('#hero-video'); if (!v) return null;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v.remove(); return null; }
-  const celular = window.matchMedia('(max-width: 700px)').matches;
   const diag = new URLSearchParams(location.search).has('diag');
   const log = (...a) => { if (!diag) return; let d = $('#diag'); if (!d) { d = document.createElement('pre'); d.id = 'diag';
-    d.style.cssText = 'position:fixed;left:6px;top:6px;right:6px;z-index:99;max-height:45vh;overflow:auto;margin:0;padding:8px;background:rgba(0,0,0,.78);color:#9f9;font:11px/1.35 monospace;white-space:pre-wrap';
+    d.style.cssText = 'position:fixed;left:6px;top:6px;right:6px;z-index:9999;max-height:45vh;overflow:auto;margin:0;padding:8px;background:rgba(0,0,0,.82);color:#9f9;font:11px/1.35 monospace;white-space:pre-wrap;pointer-events:none';
     document.body.appendChild(d); } d.textContent += a.join(' ') + '\n'; };
+  const v = $('#hero-video');
+  const reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  log('versão: v26', '| reduzir movimento:', reduzir, '| largura:', innerWidth);
+  if (!v) { log('sem <video>'); return null; }
+  // Mesmo com "Reduzir Movimento" o vídeo continua (é um fundo mudo e lento; os noivos querem sempre o vídeo).
+  const celular = window.matchMedia('(max-width: 700px)').matches;
   let anim = null;
   const andando = () => !v.paused && v.currentTime > 0.05;
   const usarCenas = (motivo) => {
