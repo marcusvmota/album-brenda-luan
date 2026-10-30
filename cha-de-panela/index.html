@@ -70,6 +70,11 @@ a{color:inherit}
 .hero-cenas img:first-child{animation-delay:-1.4s}
 @keyframes cena{0%{opacity:0;transform:scale(1.04)}7%{opacity:1}20%{opacity:1}27%{opacity:0;transform:scale(1.16)}100%{opacity:0;transform:scale(1.16)}}
 .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,20,32,.30) 0%,rgba(12,20,32,.10) 30%,rgba(12,20,32,.45) 60%,rgba(15,27,43,.90) 100%)}
+@media (max-width:700px){
+  .hero-bg::after{background:linear-gradient(180deg,rgba(12,20,32,.30) 0%,rgba(12,20,32,.18) 28%,rgba(12,20,32,.52) 50%,rgba(12,20,32,.62) 72%,rgba(15,27,43,.92) 100%)}
+  .hero .kick,.hero-date,.cta-link{text-shadow:0 1px 12px rgba(0,0,0,.55)}
+  .hero h1{text-shadow:0 2px 28px rgba(0,0,0,.55)}
+}
 .hero-in{position:relative;z-index:1;padding:28px 24px 46px;max-width:720px;margin:0 auto;width:100%}
 @media (min-width:900px){ .hero{min-height:min(780px,90vh)} .hero-bg{background-position:46% 24%} }
 .kick{display:inline-flex;align-items:center;gap:14px;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:rgba(255,255,255,.88);font-weight:600}
@@ -1031,22 +1036,14 @@ if (new URLSearchParams(location.search).has('editar')) setTimeout(() => { if (!
    O vídeo fica SEMPRE visível (o iPhone não toca automaticamente vídeo invisível), começando no 1º quadro.
    Se em ~3 s ele não estiver andando de verdade (currentTime parado — Pouca Energia, economia de dados),
    no celular entram as cenas do vídeo com fade/zoom em CSS; qualquer toque tenta o vídeo de novo e,
-   quando ele anda, as cenas saem. ?diag mostra o que o aparelho fez. */
+   quando ele anda, as cenas saem. */
 const heroVideo = (function(){
-  const diag = new URLSearchParams(location.search).has('diag');
-  const log = (...a) => { if (!diag) return; let d = $('#diag'); if (!d) { d = document.createElement('pre'); d.id = 'diag';
-    d.style.cssText = 'position:fixed;left:6px;top:6px;right:6px;z-index:9999;max-height:45vh;overflow:auto;margin:0;padding:8px;background:rgba(0,0,0,.82);color:#9f9;font:11px/1.35 monospace;white-space:pre-wrap;pointer-events:none';
-    document.body.appendChild(d); } d.textContent += a.join(' ') + '\n'; };
-  const v = $('#hero-video');
-  const reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  log('versão: v26', '| reduzir movimento:', reduzir, '| largura:', innerWidth);
-  if (!v) { log('sem <video>'); return null; }
+  const v = $('#hero-video'); if (!v) return null;
   // Mesmo com "Reduzir Movimento" o vídeo continua (é um fundo mudo e lento; os noivos querem sempre o vídeo).
   const celular = window.matchMedia('(max-width: 700px)').matches;
   let anim = null;
   const andando = () => !v.paused && v.currentTime > 0.05;
   const usarCenas = (motivo) => {
-    log('cenas:', motivo);
     if (anim || !celular || andando()) return;
     anim = document.createElement('div');
     anim.className = 'hero-cenas'; anim.setAttribute('aria-hidden', 'true');
@@ -1065,12 +1062,11 @@ const heroVideo = (function(){
   v.muted = true; v.defaultMuted = true; v.playsInline = true; v.autoplay = true;
   v.poster = celular ? 'img/hero-celular-poster.jpg' : 'img/hero-poster.jpg';
   v.src = celular ? 'img/hero-celular.mp4' : 'img/hero.mp4';
-  ['loadedmetadata', 'canplay', 'playing', 'pause', 'stalled', 'suspend', 'error'].forEach(e => v.addEventListener(e, () => log('video:', e, 't=' + v.currentTime.toFixed(2), 'paused=' + v.paused, 'rs=' + v.readyState)));
   v.addEventListener('timeupdate', () => { if (v.currentTime > 0.05) { tirarCenas(); tirarOuvintes(); } });
   const tentar = (de) => {
     if (andando()) return;
-    let p; try { p = v.play(); } catch (e) { log('play() lançou', e.name); return usarCenas('erro'); }
-    if (p && p.then) p.then(() => log('play ok', de || ''), (e) => { log('play recusado', de || '', e.name, e.message); usarCenas('recusado'); });
+    let p; try { p = v.play(); } catch (e) { return usarCenas('erro'); }
+    if (p && p.catch) p.catch(() => usarCenas('recusado'));
   };
   setTimeout(() => { if (!andando()) usarCenas('não andou em 3s'); }, 3000);
   const eventos = ['touchend', 'click', 'keydown'];
@@ -1078,7 +1074,6 @@ const heroVideo = (function(){
   const tirarOuvintes = () => eventos.forEach(e => document.removeEventListener(e, noToque, true));
   eventos.forEach(e => document.addEventListener(e, noToque, true));
   document.addEventListener('visibilitychange', () => { if (!document.hidden) tentar('voltou'); });
-  log('ua:', navigator.userAgent.slice(0, 120));
   tentar('início');
   return { tentar };
 })();
