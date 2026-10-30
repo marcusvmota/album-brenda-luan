@@ -39,13 +39,17 @@ html,body{min-height:100%}
 html.abertura-on,html.abertura-on body{overflow:hidden}
 html.abertura-on .hero-in{opacity:0}
 
-/* botão discreto de som */
-.som{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:30;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(31,59,92,.12);box-shadow:0 6px 18px rgba(17,32,51,.14);display:flex;align-items:center;justify-content:center;gap:3px;cursor:pointer;opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s;pointer-events:none}
-.som.on{opacity:1;transform:none;pointer-events:auto}
-.som i{width:3px;height:15px;border-radius:2px;background:var(--gold-2);transform-origin:50% 100%;transform:scaleY(.35);opacity:.55;transition:opacity .3s}
-.som.tocando i{opacity:1;animation:eq 1.1s ease-in-out infinite}
-.som.tocando i:nth-child(2){animation-delay:-.45s}.som.tocando i:nth-child(3){animation-delay:-.8s}
-@keyframes eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+/* botão de som: azul-marinho sólido (sem backdrop-filter, que some no Safari) */
+.som{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:30;height:46px;min-width:46px;padding:0 15px 0 14px;border-radius:999px;background:var(--navy);color:#fff;border:1px solid rgba(199,154,91,.55);box-shadow:0 8px 22px rgba(17,32,51,.28);display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--sans);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;visibility:hidden;opacity:0;transition:opacity .6s,visibility .6s}
+.som.on{visibility:visible;opacity:1}
+.som-ico{position:relative;width:16px;height:16px;display:flex;align-items:flex-end;justify-content:center;gap:3px;flex:none}
+.som-ico i{width:3px;height:15px;border-radius:2px;background:var(--gold);transform-origin:50% 100%;transform:scaleY(.4)}
+.som.tocando .som-ico i{animation:eq 1.1s ease-in-out infinite}
+.som.tocando .som-ico i:nth-child(2){animation-delay:-.45s}.som.tocando .som-ico i:nth-child(3){animation-delay:-.8s}
+.som:not(.tocando) .som-ico i{display:none}
+.som:not(.tocando) .som-ico::before{content:"";position:absolute;left:4px;top:1px;border-style:solid;border-width:7px 0 7px 11px;border-color:transparent transparent transparent var(--gold)}
+.som-txt{white-space:nowrap}
+@keyframes eq{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
 body{font-family:var(--sans);color:var(--ink);background:var(--cream);overflow-x:hidden}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 input{font:inherit;color:inherit}
@@ -332,7 +336,7 @@ a{color:inherit}
     else document.documentElement.classList.add('abertura-on'); })();
 </script>
 <audio id="musica" src="img/musica.mp3" preload="auto" loop></audio>
-<button class="som" id="som" aria-label="Tocar música" title="Música"><i></i><i></i><i></i></button>
+<button class="som" id="som" aria-label="Tocar música"><span class="som-ico"><i></i><i></i><i></i></span><span class="som-txt" id="som-txt">Ouvir música</span></button>
 
 <div class="editor-banner" id="editor-banner" hidden><span>Área dos noivos</span><button id="sair-noivos">Sair</button></div>
 
@@ -1047,8 +1051,8 @@ function tocar(){
   volumeAte(.85, 2600);
 }
 function pausar(){ volumeAte(0, 500, () => musica.pause()); }
-musica.addEventListener('play', () => { som.classList.add('tocando'); som.setAttribute('aria-label', 'Pausar música'); });
-musica.addEventListener('pause', () => { som.classList.remove('tocando'); som.setAttribute('aria-label', 'Tocar música'); });
+musica.addEventListener('play', () => { som.classList.add('tocando'); som.setAttribute('aria-label', 'Pausar música'); $('#som-txt').textContent = 'Pausar'; });
+musica.addEventListener('pause', () => { som.classList.remove('tocando'); som.setAttribute('aria-label', 'Tocar música'); $('#som-txt').textContent = 'Ouvir música'; });
 som.onclick = () => musica.paused ? tocar() : pausar();
 // sai da aba (abriu a loja, trocou de app) → pausa; volta → continua
 document.addEventListener('visibilitychange', () => {
