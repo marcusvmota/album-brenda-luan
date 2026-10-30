@@ -1022,23 +1022,26 @@ if (new URLSearchParams(location.search).has('editar')) setTimeout(() => { if (!
 
 /* ====== vídeo do topo: só entra quando já está tocando; se não tocar, fica a foto ====== */
 /* ====== vídeo do topo ======
-   Some fica a foto até o vídeo estar realmente tocando. O iPhone pode recusar o autoplay
-   (modo Pouca Energia, economia de dados): aí tentamos de novo no primeiro toque
-   (o "Entrar" da abertura já é esse toque). */
+   Celular: tenta o <video>; se o iPhone recusar (Pouca Energia / economia de dados) ou ele não começar,
+   troca por uma imagem animada (WebP), que o iPhone sempre mostra. Computador: se falhar, fica a foto. */
 const heroVideo = (function(){
   const v = $('#hero-video'); if (!v) return null;
-  const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (semMovimento) { v.remove(); return null; }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v.remove(); return null; }
+  const celular = window.matchMedia('(max-width: 700px)').matches;
+  let trocou = false;
+  const usarImagemAnimada = () => {
+    if (trocou || !celular) return; trocou = true;
+    const im = new Image();
+    im.className = 'hero-video'; im.alt = ''; im.setAttribute('aria-hidden', 'true');
+    im.onload = () => { v.replaceWith(im); requestAnimationFrame(() => im.classList.add('on')); };
+    im.src = 'img/hero-celular.webp';
+  };
   v.muted = true; v.defaultMuted = true; v.playsInline = true;
   v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
-  v.src = window.matchMedia('(max-width: 700px)').matches ? 'img/hero-celular.mp4' : 'img/hero.mp4';
-  v.addEventListener('playing', () => v.classList.add('on'));
-  const tentar = () => { if (!v.paused) return; const p = v.play(); if (p && p.catch) p.catch(() => {}); };
-  const noToque = () => { tentar(); if (!v.paused) tirar(); };
-  const eventos = ['touchend', 'click', 'keydown'];
-  const tirar = () => eventos.forEach(e => document.removeEventListener(e, noToque, true));
-  eventos.forEach(e => document.addEventListener(e, noToque, true));
-  v.addEventListener('playing', tirar, { once: true });
+  v.src = celular ? 'img/hero-celular.mp4' : 'img/hero.mp4';
+  v.addEventListener('playing', () => { clearTimeout(limite); v.classList.add('on'); });
+  const tentar = () => { if (trocou || !v.paused) return; const p = v.play(); if (p && p.catch) p.catch(usarImagemAnimada); };
+  const limite = setTimeout(() => { if (v.paused) usarImagemAnimada(); }, 3500);   // não começou: imagem animada
   document.addEventListener('visibilitychange', () => { if (!document.hidden) tentar(); });
   tentar();
   return { tentar };
