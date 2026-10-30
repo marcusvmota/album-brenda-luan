@@ -33,6 +33,8 @@ a{color:inherit}
 /* ============ HERO ============ */
 .hero{position:relative;min-height:min(560px,80vh);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;color:#fff;text-align:center}
 .hero-bg{position:absolute;inset:0;background:#0b0f16 url('img/hero.jpg') 46% 28%/cover;transform:scale(1.02)}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;opacity:0;transition:opacity 1.2s ease}
+.hero-video.on{opacity:1}
 .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,20,32,.30) 0%,rgba(12,20,32,.10) 30%,rgba(12,20,32,.45) 60%,rgba(15,27,43,.90) 100%)}
 .hero-in{position:relative;z-index:1;padding:28px 24px 46px;max-width:720px;margin:0 auto;width:100%}
 @media (min-width:900px){ .hero{min-height:min(780px,90vh)} .hero-bg{background-position:46% 24%} }
@@ -292,7 +294,7 @@ a{color:inherit}
 <div class="editor-banner" id="editor-banner" hidden><span>Área dos noivos</span><button id="sair-noivos">Sair</button></div>
 
 <header class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><video class="hero-video" id="hero-video" muted loop playsinline preload="none" aria-hidden="true"></video></div>
   <div class="hero-in">
     <span class="kick">Chá de panela</span>
     <h1>Brenda <i>&amp;</i> Luan</h1>
@@ -972,6 +974,17 @@ $('#sair-noivos').onclick = async () => {
   await carregar(); toast('Vocês saíram da área dos noivos.');
 };
 if (new URLSearchParams(location.search).has('editar')) setTimeout(() => { if (!EDITOR) openLoginSheet(); }, 600);
+
+/* ====== vídeo do topo: só entra quando já está tocando; se não tocar, fica a foto ====== */
+(function(){
+  const v = $('#hero-video'); if (!v) return;
+  const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const economia = navigator.connection && navigator.connection.saveData;
+  if (semMovimento || economia) { v.remove(); return; }
+  v.src = window.matchMedia('(max-width: 700px)').matches ? 'img/hero-celular.mp4' : 'img/hero.mp4';
+  v.addEventListener('playing', () => v.classList.add('on'), { once: true });
+  v.play().catch(() => v.remove());
+})();
 
 /* ====== realces visuais (progressive enhancement) ====== */
 function initSmoothScroll(){
