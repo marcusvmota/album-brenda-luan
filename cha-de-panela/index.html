@@ -63,6 +63,7 @@ a{color:inherit}
 .hero-bg{position:absolute;inset:0;background:#0b0f16 url('img/hero.jpg') 46% 28%/cover;transform:scale(1.02)}
 .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;opacity:0;transition:opacity 1.2s ease}
 .hero-video.on{opacity:1}
+.hero-anim{z-index:0}
 .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,20,32,.30) 0%,rgba(12,20,32,.10) 30%,rgba(12,20,32,.45) 60%,rgba(15,27,43,.90) 100%)}
 .hero-in{position:relative;z-index:1;padding:28px 24px 46px;max-width:720px;margin:0 auto;width:100%}
 @media (min-width:900px){ .hero{min-height:min(780px,90vh)} .hero-bg{background-position:46% 24%} }
@@ -1022,26 +1023,35 @@ if (new URLSearchParams(location.search).has('editar')) setTimeout(() => { if (!
 
 /* ====== vídeo do topo: só entra quando já está tocando; se não tocar, fica a foto ====== */
 /* ====== vídeo do topo ======
-   Celular: tenta o <video>; se o iPhone recusar (Pouca Energia / economia de dados) ou ele não começar,
-   troca por uma imagem animada (WebP), que o iPhone sempre mostra. Computador: se falhar, fica a foto. */
+   Tenta o <video>. No celular, se o iPhone recusar (Pouca Energia / economia de dados), mostra por cima uma
+   imagem animada (WebP) — e continua tentando o vídeo de verdade no primeiro toque (o "Entrar" já é um).
+   Assim que o vídeo começa, ele aparece e a imagem animada sai. Computador: se falhar, fica a foto. */
 const heroVideo = (function(){
   const v = $('#hero-video'); if (!v) return null;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v.remove(); return null; }
   const celular = window.matchMedia('(max-width: 700px)').matches;
-  let trocou = false;
+  let anim = null;
   const usarImagemAnimada = () => {
-    if (trocou || !celular) return; trocou = true;
-    const im = new Image();
-    im.className = 'hero-video'; im.alt = ''; im.setAttribute('aria-hidden', 'true');
-    im.onload = () => { v.replaceWith(im); requestAnimationFrame(() => im.classList.add('on')); };
-    im.src = 'img/hero-celular.webp';
+    if (anim || !celular || !v.paused) return;
+    anim = new Image();
+    anim.className = 'hero-video hero-anim'; anim.alt = ''; anim.setAttribute('aria-hidden', 'true');
+    anim.onload = () => { if (v.paused) { v.after(anim); requestAnimationFrame(() => anim.classList.add('on')); } };
+    anim.src = 'img/hero-celular.webp';
+  };
+  const tirarImagemAnimada = () => {
+    if (!anim) return; const a = anim; anim = null;
+    a.classList.remove('on'); setTimeout(() => a.remove(), 1300);
   };
   v.muted = true; v.defaultMuted = true; v.playsInline = true;
   v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
   v.src = celular ? 'img/hero-celular.mp4' : 'img/hero.mp4';
-  v.addEventListener('playing', () => { clearTimeout(limite); v.classList.add('on'); });
-  const tentar = () => { if (trocou || !v.paused) return; const p = v.play(); if (p && p.catch) p.catch(usarImagemAnimada); };
-  const limite = setTimeout(() => { if (v.paused) usarImagemAnimada(); }, 3500);   // não começou: imagem animada
+  v.addEventListener('playing', () => { clearTimeout(limite); v.classList.add('on'); tirarImagemAnimada(); tirarOuvintes(); });
+  const tentar = () => { if (!v.paused) return; const p = v.play(); if (p && p.catch) p.catch(usarImagemAnimada); };
+  const limite = setTimeout(() => { if (v.paused) usarImagemAnimada(); }, 3500);
+  const eventos = ['touchend', 'click', 'keydown'];
+  const noToque = () => tentar();
+  const tirarOuvintes = () => eventos.forEach(e => document.removeEventListener(e, noToque, true));
+  eventos.forEach(e => document.addEventListener(e, noToque, true));
   document.addEventListener('visibilitychange', () => { if (!document.hidden) tentar(); });
   tentar();
   return { tentar };
