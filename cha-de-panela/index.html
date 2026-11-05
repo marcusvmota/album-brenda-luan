@@ -584,7 +584,8 @@ const MODO_TESTE = (() => {
     const q = new URLSearchParams(location.search).get('compra');
     if (q === 'teste') localStorage.setItem('cha-compra-teste', '1');
     if (q === 'normal') { localStorage.removeItem('cha-compra-teste'); localStorage.removeItem('cha-teste-pagamentos'); }
-    return localStorage.getItem('cha-compra-teste') === '1' && !CFG.mpAtivo;
+    // CFG.compraDemo: demonstração para TODOS que abrirem o link (site ainda não divulgado; os noivos veem o fluxo)
+    return (!!CFG.compraDemo || localStorage.getItem('cha-compra-teste') === '1') && !CFG.mpAtivo;
   } catch (e) { return false; }
 })();
 const MP_ATIVO = !!CFG.mpAtivo || MODO_TESTE;
@@ -1542,7 +1543,8 @@ function initReveals(){
   if (MODO_TESTE) {   // faixa discreta: lembra que a compra está ligada só neste aparelho
     const t = document.createElement('div');
     t.id = 'faixa-teste';
-    t.innerHTML = 'Teste · nada é cobrado<button id="ft-limpar">apagar</button><a href="?compra=normal">sair</a>';
+    t.innerHTML = (CFG.compraDemo ? 'Demonstração · nada é cobrado' : 'Teste · nada é cobrado')
+      + '<button id="ft-limpar">apagar</button>' + (CFG.compraDemo ? '' : '<a href="?compra=normal">sair</a>');
     document.body.appendChild(t);
     $('#ft-limpar').onclick = async () => { simGravar([]); await carregar(); toast('Pagamentos de teste apagados.'); };
   }
