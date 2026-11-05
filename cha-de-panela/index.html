@@ -654,6 +654,9 @@ async function carregar(){
     gifts = data.map(p => ({ ...p, quem: [] }));
     // compra desligada: presentes da lista nova (com preço e sem loja) só aparecem para os noivos revisarem
     if (!MP_ATIVO && !EDITOR) gifts = gifts.filter(g => !(temPreco(g) && !g.loja));
+    // compra desligada (modo reservar): presente dividido em cotas aparece como UM presente só,
+    // senão várias pessoas "reservariam" a mesma geladeira achando que deram ela inteira
+    if (!MP_ATIVO && !EDITOR) gifts.forEach(g => { if (g.cotas) { g.qtd = 1; g.reservadas = Math.min(1, g.reservadas); } });
     await carregarMeusPagos();
     if (SIMULAR) simAplicar();
     if (EDITOR) await carregarNomes();
