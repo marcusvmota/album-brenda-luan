@@ -314,6 +314,50 @@ a{color:inherit}
 .check-row{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;color:var(--ink);margin:-4px 0 12px}
 .check-row input{width:19px;height:19px;accent-color:var(--navy)}
 .pix-tit{margin:-6px 0 16px!important;font-size:13px!important}
+/* compra pelo site */
+.preco{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--gold-2);line-height:1.1;letter-spacing:.01em}
+.preco small{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--muted);text-transform:none;margin-left:3px}
+.card.taken .preco{color:#A9A39A}
+.pk-preco{font-family:var(--serif);font-size:21px;font-weight:600;color:var(--gold-2);line-height:1}
+.pk-preco small{font-family:var(--sans);font-size:11px;font-weight:600;color:var(--muted);margin-left:4px}
+.cotas-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:10px 12px 10px 15px;margin-bottom:13px}
+.cotas-row>span{font-size:13px;color:var(--ink);font-weight:600;line-height:1.3}
+.cotas-row>span i{display:block;font-style:normal;font-weight:400;font-size:11.5px;color:var(--muted)}
+.stepper{display:flex;align-items:center;gap:4px}
+.stepper button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--paper);color:var(--navy);font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center}
+.stepper button[disabled]{opacity:.35}
+.stepper b{min-width:30px;text-align:center;font-family:var(--serif);font-size:22px;font-weight:600;color:var(--navy)}
+.field textarea{border:1px solid var(--line);background:#fff;border-radius:11px;padding:12px 14px;font:inherit;font-size:15px;outline:none;resize:none;width:100%;min-height:84px;color:inherit}
+.field textarea:focus{border-color:var(--navy)}
+.field .conta{align-self:flex-end;font-size:11px;color:var(--muted);margin-top:-2px}
+.pk-total{display:flex;align-items:baseline;justify-content:space-between;border-top:1px solid var(--line);padding:13px 2px 4px;margin-top:2px}
+.pk-total span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.pk-total b{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--navy)}
+.pk-nota{font-size:12px!important;color:var(--muted)!important;line-height:1.5!important;margin:2px 0 12px!important;display:flex;gap:8px;align-items:flex-start}
+.pk-nota .ico{width:15px;height:15px;flex:none;margin-top:1px;color:var(--gold-2)}
+.pk-breve{font-size:13px!important;background:var(--cream);border-radius:12px;padding:12px 14px;color:var(--ink)!important;margin:4px 0 6px!important;text-align:center}
+.espera{display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 0 18px;text-align:center}
+.espera .spin{width:26px;height:26px;border-width:2.5px;margin:0}
+.pag-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.pag-row:first-of-type{border-top:0}
+.pag-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left}
+.pag-txt b{font-family:var(--serif);font-weight:500;font-size:16.5px;line-height:1.2;color:var(--navy);overflow-wrap:anywhere}
+.pag-txt>span{font-size:12.5px;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+.pag-txt>span i{font-style:normal;font-weight:400;color:var(--muted)}
+.pag-txt q{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink);line-height:1.35;quotes:"“" "”";overflow-wrap:anywhere}
+.pag-val{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right}
+.pag-val b{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--navy);white-space:nowrap}
+.pag-val small{font-size:11px;color:var(--muted);white-space:nowrap}
+.chip{display:inline-block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;border-radius:999px;padding:4px 9px;white-space:nowrap}
+.chip.aprovado{background:rgba(199,154,91,.14);color:var(--gold-2)}
+.chip.pendente{background:#EEF2F6;color:#56708C}
+.chip.recusado,.chip.estornado{background:#F6ECE9;color:var(--warn)}
+.chip.divergente{background:#FFF4DC;color:#8A6416}
+.pag-total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;background:var(--cream);border-radius:13px;padding:13px 15px;margin:4px 0 10px}
+.pag-total small{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
+.pag-total b{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--navy);white-space:nowrap;flex:none}
+.pag-total>div{min-width:0}
+.pag-total span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
 .escolhidos{margin:0 0 26px;background:#fff;border:1px solid rgba(199,154,91,.35);border-radius:18px;padding:18px 18px 10px}
 .esc-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
 .esc-head small{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
@@ -429,13 +473,14 @@ a{color:inherit}
 
 <section class="how">
   <div class="how-grid">
-    <div class="how-step"><b>1</b><span>Escolha um presente</span></div>
-    <div class="how-step"><b>2</b><span>Confirme seu nome</span></div>
-    <div class="how-step"><b>3</b><span>Ele fica reservado pra você</span></div>
+    <div class="how-step"><b>1</b><span id="how-1">Escolha um presente</span></div>
+    <div class="how-step"><b>2</b><span id="how-2">Confirme seu nome</span></div>
+    <div class="how-step"><b>3</b><span id="how-3">Ele fica reservado pra você</span></div>
   </div>
 </section>
 
 <main class="wrap" id="lista">
+  <section class="escolhidos" id="pagamentos" hidden></section>
   <section class="escolhidos" id="escolhidos" hidden></section>
   <div class="count-row">
     <h2>Lista de presentes</h2>
@@ -504,6 +549,9 @@ const ICON = {
   trash:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
   camera:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
   gift:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M3 12h18M12 8v13M8 8a2.5 2.5 0 1 1 4-3 2.5 2.5 0 1 1 4 3"/></svg>',
+  lock:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>',
+  clock:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  x:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>',
 };
 
 const CATS = {
@@ -512,7 +560,24 @@ const CATS = {
   quarto:     {label:'Quarto'},
   banheiro:   {label:'Banheiro'},
   experiencia:{label:'Experiências'},
+  luademel:   {label:'Lua de mel'},
+  divertido:  {label:'Divertidos'},
 };
+
+/* ====== compra pelo site (Mercado Pago) ======
+   O preço que o convidado vê já tem a taxa do Mercado Pago embutida (calculado no banco: cha_preco).
+   CFG.mpAtivo = true quando a conta da noiva estiver ligada; antes disso o botão avisa "em breve". */
+const MP_ATIVO = !!CFG.mpAtivo;
+const TAXA_MP = 0.0498;
+const precoDe = v => Math.ceil(Math.round(v / (1 - TAXA_MP) * 1e6) / 1e6);   // igual ao cha_preco() do banco
+const reais = v => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: Number(v) % 1 ? 2 : 0, maximumFractionDigits: 2 });
+const temPreco = g => g.preco != null && Number(g.preco) > 0;
+const compra = g => MP_ATIVO && temPreco(g);            // este presente é comprado pelo site
+const modoCompra = () => MP_ATIVO && gifts.some(temPreco);
+const temColunasCompra = () => gifts.length > 0 && 'preco' in gifts[0];   // migration 0005 já rodou
+let meusPagos = new Map();   // presente → quantas unidades/cotas ESTE convidado já pagou (aprovado)
+let pagamentos = [];         // só noivos
+const METODO = { pix: 'Pix', credit_card: 'Cartão', debit_card: 'Débito', account_money: 'Saldo MP', ticket: 'Boleto', bank_transfer: 'Pix' };
 
 /* ====== estado ====== */
 // cada presente: {id, nome, detalhe, cat, qtd, loja, foto, fav, ordem, reservadas, minha, quem:[nomes] (só noivos)}
@@ -553,6 +618,7 @@ async function carregar(){
     const { data, error } = await sb.rpc('cha_lista');
     if (error) throw error;
     gifts = data.map(p => ({ ...p, quem: [] }));
+    await carregarMeusPagos();
     if (EDITOR) await carregarNomes();
     erroCarga = '';
   } catch (e) {
@@ -573,8 +639,32 @@ async function carregarNomes(){
   reservas = rs;
   gifts.forEach(g => g.quem = por[g.id] || []);
   pixAvisos = px;
+  pagamentos = [];
+  if (temColunasCompra()) {
+    // o valor líquido (o que os noivos recebem) não sai na lista pública; só os noivos leem
+    const { data: vs } = await sbN.from('cha_presentes').select('id,valor');
+    const val = Object.fromEntries((vs || []).map(v => [v.id, v.valor]));
+    gifts.forEach(g => g.valor = val[g.id] ?? null);
+    // pagamentos pelo site (migration 0005): não derruba a área dos noivos se falhar
+    const { data: pg, error: e3 } = await sbN.from('cha_pagamentos')
+      .select('id,presente_id,nome,mensagem,quantidade,valor,status,metodo,parcelas,valor_pago,valor_liquido,criado_em')
+      .order('criado_em', { ascending: false });
+    if (e3) console.warn('cha_pagamentos', e3); else pagamentos = pg;
+  }
   renderPixAvisos();
   renderEscolhidos();
+  renderPagamentos();
+}
+async function carregarMeusPagos(){
+  meusPagos = new Map();
+  if (!temColunasCompra()) return;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const { data, error } = await sb.rpc('cha_meus_pagamentos');
+    if (error) throw error;
+    data.filter(p => p.status === 'aprovado' || p.status === 'divergente').forEach(p => meusPagos.set(p.presente_id, (meusPagos.get(p.presente_id) || 0) + p.quantidade));
+  } catch (e) { console.warn('meus pagamentos', e); }
 }
 
 /* ====== categorias ====== */
@@ -607,13 +697,19 @@ function cardHTML(g){
   const cat = CATS[g.cat] || {label:g.cat};
   const meta = [];
   if (g.detalhe) meta.push(esc(g.detalhe));
-  if (g.qtd > 1) meta.push(taken ? 'esgotado' : (left === 1 ? 'resta 1' : 'restam ' + left));
+  const un = g.cotas ? (n => n === 1 ? 'cota' : 'cotas') : (() => '');
+  if (g.qtd > 1) meta.push(taken ? 'esgotado' : ((left === 1 ? 'resta 1' : 'restam ' + left) + (g.cotas ? ' ' + un(left) : '')));
+  const mostraPreco = temPreco(g) && (MP_ATIVO || EDITOR);
+  const preco = mostraPreco ? `<div class="preco">${reais(g.preco)}${g.cotas ? '<small>a cota</small>' : ''}</div>` : '';
   let footer;
   // convidados não veem quem deu; os noivos veem o nome completo de todos
   const quem = EDITOR && g.quem.length
     ? `<div class="givers"><small>Presenteado por</small>${g.quem.map(r => `<span class="giver"><em>${esc(r.nome)}</em><button class="liberar" data-liberar="${r.id}" data-gift="${g.id}">liberar</button></span>`).join('')}</div>`
     : '';
-  if (mine) footer = `<div class="mine-note">Você vai dar este presente</div><div class="mine-links">${g.loja ? `<a href="${esc(g.loja)}" target="_blank" rel="noopener">ver na loja ↗</a>` : ''}<button data-cancel="${g.id}">cancelar</button></div>`;
+  const pagou = meusPagos.get(g.id) || 0;
+  if (mine && pagou) footer = `<div class="mine-note">Você presenteou${g.cotas ? (pagou === 1 ? ' com 1 cota' : ` com ${pagou} cotas`) : ''}. Obrigado!</div>`
+    + (g.cotas && left > 0 ? `<button class="pick-btn" data-pick="${g.id}" style="margin-top:8px">Mais uma cota</button>` : '');
+  else if (mine) footer = `<div class="mine-note">Você vai dar este presente</div><div class="mine-links">${g.loja ? `<a href="${esc(g.loja)}" target="_blank" rel="noopener">ver na loja ↗</a>` : ''}<button data-cancel="${g.id}">cancelar</button></div>`;
   else if (taken) footer = EDITOR ? '' : `<div class="taken-by">já presenteado</div>`;
   else footer = `<button class="pick-btn" data-pick="${g.id}">Presentear</button>`;
   footer = quem + footer;
@@ -629,6 +725,7 @@ function cardHTML(g){
       <span class="cat-line">${esc(cat.label)}</span>
       <b>${esc(g.nome)}</b>
       ${meta.length ? `<div class="meta">${meta.join('<span class="dot"></span>')}</div>` : ''}
+      ${preco}
       <div style="height:8px"></div>
       ${footer}
     </div>
@@ -732,6 +829,7 @@ $('#grid').addEventListener('click', e => {
 
 function openPickSheet(id){
   const g = gifts.find(x => x.id === id); if (!g) return;
+  if (compra(g)) return openCompraSheet(g);
   const cat = (CATS[g.cat] || {label:g.cat}).label;
   const loja = g.loja ? `<a class="store-link" href="${esc(g.loja)}" target="_blank" rel="noopener">ver referência na loja ↗</a>` : '';
   const foto = fotoUrl(g.foto);
@@ -774,6 +872,108 @@ function openPickSheet(id){
     }
   };
   $('#pk-cancel').onclick = closeSheet;
+}
+
+/* ====== presentear pagando pelo site (Mercado Pago Checkout Pro) ======
+   O site só manda presente/nome/mensagem/quantidade; o VALOR sai do banco, na Edge Function mp-criar. */
+function openCompraSheet(g){
+  const cat = (CATS[g.cat] || {label:g.cat}).label;
+  const foto = fotoUrl(g.foto);
+  const left = available(g);
+  const maxQ = g.cotas ? Math.min(left, 10) : 1;
+  let q = 1;
+  openSheet(`<div class="pk-head">${foto ? `<img src="${esc(foto)}" alt="">` : ''}<div><span class="cat-line">${esc(cat)}</span><h3>${esc(g.nome)}</h3>
+      <div class="pk-preco">${reais(g.preco)}${g.cotas ? '<small>por cota</small>' : ''}</div></div></div>
+    ${g.cotas && maxQ > 1 ? `<div class="cotas-row"><span>Quantas cotas?<i>${left === 1 ? 'resta 1' : 'restam ' + left} de ${g.qtd}</i></span>
+      <div class="stepper"><button id="q-menos" aria-label="Menos uma cota">−</button><b id="q-n">1</b><button id="q-mais" aria-label="Mais uma cota">+</button></div></div>` : ''}
+    <div class="field"><label>Nome</label><input id="pk-nome" placeholder="Seu nome completo" autocomplete="name" enterkeyhint="next" maxlength="60" value="${esc(localStorage.getItem('cha-nome') || '')}"></div>
+    <div class="field"><label>Mensagem para os noivos (opcional)</label><textarea id="pk-msg" maxlength="400" rows="3" placeholder="Um recado de carinho"></textarea><span class="conta" id="pk-conta">0/400</span></div>
+    <div class="pk-total"><span>Total</span><b id="pk-total">${reais(g.preco)}</b></div>
+    <p class="pk-nota">${ICON.lock}<span>Pagamento seguro pelo Mercado Pago, com Pix ou cartão (no cartão dá pra parcelar). Os outros convidados não veem seu nome.</span></p>
+    <div class="login-err" id="pk-err"></div>
+    <button class="btn shine" id="pk-ok" disabled>Ir para o pagamento</button>
+    <button class="btn alt" id="pk-cancel">Voltar</button>`);
+  const input = $('#pk-nome'), msg = $('#pk-msg'), ok = $('#pk-ok');
+  const valida = () => ok.disabled = input.value.trim().length < 2;
+  const qtd = () => {
+    $('#q-n') && ($('#q-n').textContent = q);
+    $('#q-menos') && ($('#q-menos').disabled = q <= 1);
+    $('#q-mais') && ($('#q-mais').disabled = q >= maxQ);
+    $('#pk-total').textContent = reais(g.preco * q);
+  };
+  valida(); qtd();
+  input.addEventListener('input', valida);
+  msg.addEventListener('input', () => $('#pk-conta').textContent = msg.value.length + '/400');
+  if ($('#q-menos')) { $('#q-menos').onclick = () => { if (q > 1) { q--; qtd(); } }; $('#q-mais').onclick = () => { if (q < maxQ) { q++; qtd(); } }; }
+  setTimeout(() => input.focus(), 320);
+  $('#pk-cancel').onclick = closeSheet;
+  ok.onclick = async () => {
+    const nome = input.value.trim();
+    ocupado(ok, true, 'Abrindo o pagamento…'); $('#pk-err').textContent = '';
+    try {
+      await garantirSessao();
+      const { data, error } = await sb.functions.invoke('mp-criar', {
+        body: { presente: g.id, nome, mensagem: msg.value.trim() || null, quantidade: q },
+      });
+      if (error) {
+        let texto = '';
+        try { texto = (await error.context.json()).erro || ''; } catch (_) {}
+        throw Object.assign(new Error(texto || error.message), { paraConvidado: texto });
+      }
+      if (!data || !data.checkout) throw new Error('sem link do checkout');
+      localStorage.setItem('cha-nome', nome);
+      sessionStorage.setItem('cha-pagando', JSON.stringify({ pagamento: data.pagamento, presente: g.id, nome: g.nome }));
+      window.location.href = data.checkout;      // vai para o Mercado Pago; volta em ?pagamento=…&estado=…
+    } catch (e) {
+      console.warn('mp-criar', e);
+      ocupado(ok, false);
+      if (/acabou de ser presenteado|esgotado/.test(e.message)) { closeSheet(); toast('Poxa, alguém acabou de escolher esse presente.'); carregar(); return; }
+      $('#pk-err').textContent = e.paraConvidado || 'Não conseguimos abrir o pagamento agora. Confira sua internet e tente de novo.';
+    }
+  };
+}
+
+/* volta do Mercado Pago: ?pagamento=<id>&estado=aprovado|pendente|recusado
+   O estado da URL é só uma dica: quem confirma é o banco (webhook → cha_registrar_pagamento). */
+async function voltaDoPagamento(){
+  const u = new URL(location.href);
+  const id = u.searchParams.get('pagamento'), estado = u.searchParams.get('estado');
+  if (!id) return;
+  ['pagamento','estado','collection_id','collection_status','payment_id','status','external_reference','payment_type','merchant_order_id','preference_id','site_id','processing_mode','merchant_account_id']
+    .forEach(k => u.searchParams.delete(k));
+  history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+  let info = {}; try { info = JSON.parse(sessionStorage.getItem('cha-pagando') || '{}'); } catch (_) {}
+  const titulo = info.nome ? `<b>${esc(info.nome)}</b>` : 'seu presente';
+  const primeiro = (localStorage.getItem('cha-nome') || '').split(' ')[0];
+  const telaOk = () => { burstConfetti(); openSheet(`<div class="done"><div class="done-ic">${ICON.check}</div>
+      <h3>Obrigado${primeiro ? ', ' + esc(primeiro) : ''}!</h3>
+      <p>O pagamento de ${titulo} foi confirmado. Os noivos vão saber que veio de você.</p>
+      <button class="btn" id="dn-ok">Voltar para a lista</button></div>`); $('#dn-ok').onclick = closeSheet; };
+  const telaEspera = () => { openSheet(`<div class="done"><div class="done-ic">${ICON.clock}</div>
+      <h3>Quase lá</h3>
+      <p>Estamos esperando o Mercado Pago confirmar o pagamento de ${titulo}. Se foi no Pix, assim que ele cair o presente fica no seu nome.</p>
+      <p class="hint">Pode fechar esta página. Se o pagamento não for concluído, o presente volta para a lista.</p>
+      <button class="btn" id="dn-ok">Voltar para a lista</button></div>`); $('#dn-ok').onclick = closeSheet; };
+  const telaNao = () => { openSheet(`<div class="done"><div class="done-ic">${ICON.x}</div>
+      <h3>Pagamento não concluído</h3>
+      <p>Nada foi cobrado. ${info.nome ? esc(info.nome) + ' continua' : 'O presente continua'} disponível na lista, se quiser tentar de novo.</p>
+      <button class="btn" id="dn-ok">Voltar para a lista</button></div>`); $('#dn-ok').onclick = closeSheet; };
+  if (estado === 'recusado') {
+    try { await garantirSessao(); await sb.rpc('cha_desistir_compra', { p_pagamento: id }); } catch (_) {}
+    sessionStorage.removeItem('cha-pagando'); await carregar(); telaNao(); return;
+  }
+  openSheet(`<div class="espera"><span class="spin"></span><p>Confirmando o pagamento…</p></div>`);
+  // o aviso do Mercado Pago (webhook) costuma chegar em segundos
+  for (let i = 0; i < 8; i++) {
+    try {
+      const { data } = await sb.rpc('cha_meus_pagamentos');
+      const p = (data || []).find(x => x.pagamento === id);
+      if (p && (p.status === 'aprovado' || p.status === 'divergente')) { sessionStorage.removeItem('cha-pagando'); await carregar(); telaOk(); return; }
+      if (p && (p.status === 'recusado' || p.status === 'estornado')) { sessionStorage.removeItem('cha-pagando'); telaNao(); return; }
+    } catch (_) {}
+    await new Promise(r => setTimeout(r, 2500));
+  }
+  telaEspera();
 }
 function openCancelSheet(id){
   const g = gifts.find(x => x.id === id); if (!g || !g.minha) return;
@@ -882,6 +1082,11 @@ function giftForm(g){
       <div class="field"><label>Categoria</label><select id="f-cat">${catOpts}</select></div>
       <div class="field"><label>Quantidade</label><input id="f-qtd" type="number" min="1" max="50" value="${g?g.qtd:1}"></div>
     </div>
+    ${temColunasCompra() ? `<div class="row2">
+      <div class="field"><label>Vocês recebem (R$)</label><input id="f-valor" type="number" min="1" max="50000" step="0.01" inputmode="decimal" value="${g && g.valor != null ? Number(g.valor) : ''}" placeholder="Ex: 300"></div>
+      <div class="field"><label>Convidado paga</label><input id="f-preco" disabled value=""></div>
+    </div>
+    <label class="check-row"><input type="checkbox" id="f-cotas" ${g && g.cotas ? 'checked' : ''}> Dividir em cotas (a quantidade vira o nº de cotas)</label>` : ''}
     <div class="field"><label>Link da loja (opcional)</label><input id="f-loja" value="${g ? esc(g.loja||'') : ''}" placeholder="Cole o link do produto" inputmode="url"></div>
     <div class="field"><label>Foto</label>
       <div class="photo-field">
@@ -904,6 +1109,9 @@ function openEditSheet(id){
     <button class="btn alt" id="g-cancel">Cancelar</button>`);
   $('#g-cancel').onclick = closeSheet;
   pendingPhoto = null;
+  const fv = $('#f-valor');
+  if (fv) { const mostra = () => { const v = parseFloat(fv.value); $('#f-preco').value = v > 0 ? reais(precoDe(v)) + ($('#f-cotas').checked ? ' a cota' : '') : ''; };
+            fv.addEventListener('input', mostra); $('#f-cotas').addEventListener('change', mostra); mostra(); }
   $('#f-file').onchange = async ev => {
     const file = ev.target.files[0]; if (!file) return;
     try {
@@ -923,6 +1131,11 @@ function openEditSheet(id){
       nome, detalhe: $('#f-detalhe').value.trim() || null, cat: $('#f-cat').value,
       loja: loja || null, qtd: Math.min(50, Math.max(1, parseInt($('#f-qtd').value) || 1)), fav: $('#f-fav').checked,
     };
+    if (fv) {
+      const v = parseFloat(fv.value);
+      data.valor = v > 0 ? Math.min(50000, Math.round(v * 100) / 100) : null;
+      data.cotas = $('#f-cotas').checked && data.qtd > 1;
+    }
     const b = $('#g-save'); ocupado(b, true, 'Salvando…');
     try {
       if (pendingPhoto) {
@@ -1013,6 +1226,8 @@ function renderEscolhidos(){
   box.hidden = false;
   const porId = Object.fromEntries(gifts.map(g => [g.id, g]));
   const lista = reservas.filter(r => porId[r.presente_id]).slice().reverse();
+  // com a compra pelo site ligada, as reservas antigas só aparecem se existirem
+  if (modoCompra() && !lista.length) { box.hidden = true; box.innerHTML = ''; return; }
   const dia = d => new Date(d).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
   const linhas = (escTodos ? lista : lista.slice(0, ESC_PRIMEIROS)).map(r => {
     const g = porId[r.presente_id], foto = fotoUrl(g.foto);
@@ -1033,6 +1248,37 @@ $('#escolhidos').addEventListener('click', e => {
   if (lib) openLiberarSheet(lib.dataset.gift, lib.dataset.liberar);
 });
 
+/* painel dos noivos: pagamentos feitos pelo site (nome, mensagem, forma, quanto caiu) */
+let pagTodos = false;
+function renderPagamentos(){
+  const box = $('#pagamentos');
+  if (!EDITOR || !temColunasCompra() || (!pagamentos.length && !MP_ATIVO)) { box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  const porId = Object.fromEntries(gifts.map(g => [g.id, g]));
+  // pendentes vencidos e recusados não interessam aos noivos
+  const vivo = p => p.status === 'aprovado' || p.status === 'divergente' || p.status === 'estornado' || p.status === 'pendente' && Date.now() - new Date(p.criado_em) < 30 * 60e3;
+  const lista = pagamentos.filter(vivo);
+  const ok = lista.filter(p => p.status === 'aprovado' || p.status === 'divergente');
+  const recebido = ok.reduce((s, p) => s + Number(p.valor_liquido ?? p.valor_pago ?? 0), 0);
+  const pago = ok.reduce((s, p) => s + Number(p.valor_pago ?? p.valor ?? 0), 0);
+  const ROT = { aprovado: 'pago', pendente: 'aguardando', divergente: 'conferir', estornado: 'estornado' };
+  const dia = d => new Date(d).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+  const linhas = (pagTodos ? lista : lista.slice(0, ESC_PRIMEIROS)).map(p => {
+    const g = porId[p.presente_id] || { nome: 'Presente removido' };
+    const forma = [METODO[p.metodo] || p.metodo, p.parcelas > 1 ? p.parcelas + 'x' : ''].filter(Boolean).join(' ');
+    const titulo = esc(g.nome) + (g.cotas ? ` <i>· ${p.quantidade} ${p.quantidade === 1 ? 'cota' : 'cotas'}</i>` : '');
+    return `<div class="pag-row">
+      <span class="pag-txt"><b>${titulo}</b><span>${esc(p.nome)} <i>· ${dia(p.criado_em)}${forma ? ' · ' + esc(forma) : ''}</i></span>${p.mensagem ? `<q>${esc(p.mensagem)}</q>` : ''}</span>
+      <span class="pag-val"><b>${reais(p.valor_pago ?? p.valor)}</b>${p.valor_liquido != null ? `<small>caiu ${reais(p.valor_liquido)}</small>` : ''}<span class="chip ${p.status}">${ROT[p.status] || p.status}</span></span>
+    </div>`;
+  }).join('');
+  box.innerHTML = `<div class="esc-head"><small>Presentes pagos pelo site</small><span>${ok.length} ${ok.length === 1 ? 'pagamento' : 'pagamentos'}</span></div>`
+    + (ok.length ? `<div class="pag-total"><div><small>Recebido</small><span>convidados pagaram <span style="display:inline;white-space:nowrap">${reais(pago)}</span></span></div><b>${reais(recebido)}</b></div>` : '')
+    + (lista.length ? linhas : `<div class="esc-vazio">Nenhum pagamento ainda. Quando um convidado presentear pelo site, aparece aqui com o nome, a mensagem e quanto caiu na conta.</div>`)
+    + (lista.length > ESC_PRIMEIROS ? `<div class="esc-mais"><button id="pag-toggle">${pagTodos ? 'Mostrar menos' : `Ver todos (${lista.length})`}</button></div>` : '');
+  const tg = $('#pag-toggle'); if (tg) tg.onclick = () => { pagTodos = !pagTodos; renderPagamentos(); };
+}
+
 function renderPixAvisos(){
   const box = $('#pix-avisos');
   if (!EDITOR) { box.hidden = true; return; }
@@ -1048,6 +1294,7 @@ function aplicarModo(){
   $('#fab-add').hidden = !EDITOR;
   renderPixAvisos();
   renderEscolhidos();
+  renderPagamentos();
 }
 $('#fab-add').onclick = () => openEditSheet(null);
 
@@ -1217,6 +1464,11 @@ function initReveals(){
   }
   aplicarModo();
   await carregar();
+  if (modoCompra()) {   // compra pelo site ligada: "como funciona" fala de pagar, não de reservar
+    $('#how-2').textContent = 'Pague com Pix ou cartão';
+    $('#how-3').textContent = 'Os noivos recebem com o seu nome';
+  }
+  voltaDoPagamento();
   // a lista se atualiza sozinha quando o convidado volta para a aba
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && carregado) carregar(); });
 })();

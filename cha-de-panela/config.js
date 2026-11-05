@@ -13,5 +13,6 @@ window.CHA_CONFIG = {
     "endereco": "Av. Paris · Cuités · Campina Grande – PB",
     "obs": "A cerimônia e a recepção serão no mesmo local.",
     "local": "Espaço Imbituba, Av. Paris, Cuités, Campina Grande - PB, 58115-000"
-  }
+  },
+  "mpAtivo": false
 };
