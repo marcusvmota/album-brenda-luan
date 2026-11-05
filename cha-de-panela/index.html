@@ -566,8 +566,18 @@ const CATS = {
 
 /* ====== compra pelo site (Mercado Pago) ======
    O preço que o convidado vê já tem a taxa do Mercado Pago embutida (calculado no banco: cha_preco).
-   CFG.mpAtivo = true quando a conta da noiva estiver ligada; antes disso o botão avisa "em breve". */
-const MP_ATIVO = !!CFG.mpAtivo;
+   CFG.mpAtivo = true quando a conta da noiva estiver ligada; antes disso o botão avisa "em breve".
+   Modo de teste: abrir o site com ?compra=teste liga a compra só NESTE navegador (fica salvo até
+   ?compra=normal). Serve para testar com o Mercado Pago antes de liberar para os convidados. */
+const MODO_TESTE = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get('compra');
+    if (q === 'teste') localStorage.setItem('cha-compra-teste', '1');
+    if (q === 'normal') localStorage.removeItem('cha-compra-teste');
+    return localStorage.getItem('cha-compra-teste') === '1' && !CFG.mpAtivo;
+  } catch (e) { return false; }
+})();
+const MP_ATIVO = !!CFG.mpAtivo || MODO_TESTE;
 const TAXA_MP = 0.0498;
 const precoDe = v => Math.ceil(Math.round(v / (1 - TAXA_MP) * 1e6) / 1e6);   // igual ao cha_preco() do banco
 const reais = v => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: Number(v) % 1 ? 2 : 0, maximumFractionDigits: 2 });
@@ -1466,6 +1476,14 @@ function initReveals(){
   }
   aplicarModo();
   await carregar();
+  if (MODO_TESTE) {   // faixa discreta: lembra que a compra está ligada só neste aparelho
+    const t = document.createElement('div');
+    t.id = 'faixa-teste';
+    t.innerHTML = 'Modo de teste da compra · só neste aparelho <a href="?compra=normal">sair</a>';
+    t.style.cssText = 'position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:90;background:#8A6416;color:#fff;font:700 11px/1 var(--sans);letter-spacing:.08em;padding:9px 14px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.18);white-space:nowrap';
+    t.querySelector('a').style.cssText = 'color:#fff;margin-left:8px;text-decoration:underline';
+    document.body.appendChild(t);
+  }
   if (modoCompra()) {   // compra pelo site ligada: "como funciona" fala de pagar, não de reservar
     $('#how-2').textContent = 'Pague com Pix ou cartão';
     $('#how-3').textContent = 'Os noivos recebem com o seu nome';
