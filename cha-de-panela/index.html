@@ -353,6 +353,16 @@ a{color:inherit}
 .chip.pendente{background:#EEF2F6;color:#56708C}
 .chip.recusado,.chip.estornado{background:#F6ECE9;color:var(--warn)}
 .chip.divergente{background:#FFF4DC;color:#8A6416}
+.chip.teste{background:#F1ECF8;color:#6B4E99;margin-top:4px}
+/* modo de teste: "Mercado Pago" simulado */
+.sim-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid var(--line, rgba(31,58,92,.12))}
+.sim-head span{font-weight:700;color:#009EE3;letter-spacing:.01em}
+.sim-head i{font-style:normal;font-size:11px;color:#8A6416;letter-spacing:.04em}
+.sim-ops{display:grid;gap:10px;margin:6px 0 10px}
+.sim-ops .btn{margin:0}
+#faixa-teste{position:fixed;left:12px;bottom:14px;z-index:90;background:#8A6416;color:#fff;font:600 11.5px/1 var(--sans);letter-spacing:.03em;padding:10px 14px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.18);white-space:nowrap;transition:opacity .2s}
+body.com-folha #faixa-teste{opacity:0;pointer-events:none}
+#faixa-teste a,#faixa-teste button{color:#fff;margin-left:10px;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer}
 .pag-total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;background:var(--cream);border-radius:13px;padding:13px 15px;margin:4px 0 10px}
 .pag-total small{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
 .pag-total b{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--navy);white-space:nowrap;flex:none}
@@ -573,11 +583,25 @@ const MODO_TESTE = (() => {
   try {
     const q = new URLSearchParams(location.search).get('compra');
     if (q === 'teste') localStorage.setItem('cha-compra-teste', '1');
-    if (q === 'normal') localStorage.removeItem('cha-compra-teste');
+    if (q === 'normal') { localStorage.removeItem('cha-compra-teste'); localStorage.removeItem('cha-teste-pagamentos'); }
     return localStorage.getItem('cha-compra-teste') === '1' && !CFG.mpAtivo;
   } catch (e) { return false; }
 })();
 const MP_ATIVO = !!CFG.mpAtivo || MODO_TESTE;
+/* Simulação: no modo de teste o "Mercado Pago" é uma tela de mentira e os pagamentos ficam só neste
+   navegador (localStorage). Nada vai para o banco, ninguém mais vê, nada é cobrado. Serve para
+   conferir o visual e o fluxo inteiro (folha → pagamento → obrigado → área dos noivos). */
+const SIMULAR = MODO_TESTE;
+const SIM_KEY = 'cha-teste-pagamentos';
+const simLer = () => { try { return JSON.parse(localStorage.getItem(SIM_KEY) || '[]'); } catch (_) { return []; } };
+const simGravar = l => { try { localStorage.setItem(SIM_KEY, JSON.stringify(l)); } catch (_) {} };
+function simAplicar(){   // soma os pagamentos simulados aprovados à lista que veio do banco
+  simLer().filter(p => p.status === 'aprovado').forEach(p => {
+    const g = gifts.find(x => x.id === p.presente_id); if (!g) return;
+    g.reservadas = Math.min(g.qtd, g.reservadas + p.quantidade); g.minha = true;
+    meusPagos.set(g.id, (meusPagos.get(g.id) || 0) + p.quantidade);
+  });
+}
 const TAXA_MP = 0.0498;
 const precoDe = v => Math.ceil(Math.round(v / (1 - TAXA_MP) * 1e6) / 1e6);   // igual ao cha_preco() do banco
 const reais = v => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: Number(v) % 1 ? 2 : 0, maximumFractionDigits: 2 });
@@ -631,6 +655,7 @@ async function carregar(){
     // compra desligada: presentes da lista nova (com preço e sem loja) só aparecem para os noivos revisarem
     if (!MP_ATIVO && !EDITOR) gifts = gifts.filter(g => !(temPreco(g) && !g.loja));
     await carregarMeusPagos();
+    if (SIMULAR) simAplicar();
     if (EDITOR) await carregarNomes();
     erroCarga = '';
   } catch (e) {
@@ -662,6 +687,7 @@ async function carregarNomes(){
       .select('id,presente_id,nome,mensagem,quantidade,valor,status,metodo,parcelas,valor_pago,valor_liquido,criado_em')
       .order('criado_em', { ascending: false });
     if (e3) console.warn('cha_pagamentos', e3); else pagamentos = pg;
+    if (SIMULAR) pagamentos = [...simLer().filter(p => p.status !== 'recusado').map(p => ({ ...p, teste: true })), ...pagamentos];
   }
   renderPixAvisos();
   renderEscolhidos();
@@ -800,8 +826,8 @@ function setCountLabel(livres, total){
   el.dataset.v = livres;
 }
 
-function openSheet(html){ $('#sheet-body').innerHTML = html; $('#sheet').classList.add('on'); $('#sheet-bg').classList.add('on'); }
-function closeSheet(){ $('#sheet').classList.remove('on'); $('#sheet-bg').classList.remove('on'); }
+function openSheet(html){ $('#sheet-body').innerHTML = html; $('#sheet').classList.add('on'); $('#sheet-bg').classList.add('on'); document.body.classList.add('com-folha'); }
+function closeSheet(){ $('#sheet').classList.remove('on'); $('#sheet-bg').classList.remove('on'); document.body.classList.remove('com-folha'); }
 $('#sheet-bg').addEventListener('click', closeSheet);
 function toast(msg, ms=2600){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'), ms); }
 function burstConfetti(){
@@ -921,6 +947,7 @@ function openCompraSheet(g){
   $('#pk-cancel').onclick = closeSheet;
   ok.onclick = async () => {
     const nome = input.value.trim();
+    if (SIMULAR) { localStorage.setItem('cha-nome', nome); return checkoutSimulado(g, nome, msg.value.trim() || null, q); }
     ocupado(ok, true, 'Abrindo o pagamento…'); $('#pk-err').textContent = '';
     try {
       await garantirSessao();
@@ -943,6 +970,38 @@ function openCompraSheet(g){
       $('#pk-err').textContent = e.paraConvidado || 'Não conseguimos abrir o pagamento agora. Confira sua internet e tente de novo.';
     }
   };
+}
+
+/* "Mercado Pago" de mentira do modo de teste: escolhe como o pagamento termina e volta para o site
+   pelo MESMO caminho do de verdade (?pagamento=…&estado=…), para testar as telas de volta. */
+function checkoutSimulado(g, nome, mensagem, q){
+  const total = g.preco * q;
+  const parc = 3, juros = 0.0899;                    // só ilustrativo: o juro real é do Mercado Pago
+  openSheet(`<div class="sim-head"><span>Mercado Pago</span><i>simulação · nada é cobrado</i></div>
+    <h3>${esc(g.nome)}${g.cotas ? ` <small>· ${q} ${q === 1 ? 'cota' : 'cotas'}</small>` : ''}</h3>
+    <div class="pk-total"><span>Total</span><b>${reais(total)}</b></div>
+    <p class="hint">Escolha como este pagamento de teste termina:</p>
+    <div class="sim-ops">
+      <button class="btn" data-sim="pix">Pix · aprovado</button>
+      <button class="btn" data-sim="cartao">Cartão em ${parc}x · aprovado</button>
+      <button class="btn alt" data-sim="pendente">Pix · ainda não pago</button>
+      <button class="btn alt" data-sim="recusado">Cartão recusado / desistiu</button>
+    </div>
+    <button class="btn alt" id="sim-voltar">Voltar</button>`);
+  $('#sim-voltar').onclick = closeSheet;
+  document.querySelectorAll('[data-sim]').forEach(b => b.onclick = () => {
+    const tipo = b.dataset.sim, pix = tipo === 'pix' || tipo === 'pendente';
+    const status = tipo === 'pendente' ? 'pendente' : tipo === 'recusado' ? 'recusado' : 'aprovado';
+    const id = 'teste-' + Date.now();
+    const taxa = pix ? 0.0099 : 0.0498;
+    simGravar([{ id, presente_id: g.id, nome, mensagem, quantidade: q, valor: total, status,
+      metodo: pix ? 'pix' : 'credit_card', parcelas: tipo === 'cartao' ? parc : 1,
+      valor_pago: total, valor_liquido: status === 'aprovado' ? Math.round(total * (1 - taxa) * 100) / 100 : null,
+      juros: tipo === 'cartao' ? Math.round(total * juros * 100) / 100 : 0,
+      criado_em: new Date().toISOString() }, ...simLer()]);
+    sessionStorage.setItem('cha-pagando', JSON.stringify({ pagamento: id, presente: g.id, nome: g.nome }));
+    location.href = location.pathname + '?pagamento=' + id + '&estado=' + status;
+  });
 }
 
 /* volta do Mercado Pago: ?pagamento=<id>&estado=aprovado|pendente|recusado
@@ -971,14 +1030,15 @@ async function voltaDoPagamento(){
       <p>Nada foi cobrado. ${info.nome ? esc(info.nome) + ' continua' : 'O presente continua'} disponível na lista, se quiser tentar de novo.</p>
       <button class="btn" id="dn-ok">Voltar para a lista</button></div>`); $('#dn-ok').onclick = closeSheet; };
   if (estado === 'recusado') {
-    try { await garantirSessao(); await sb.rpc('cha_desistir_compra', { p_pagamento: id }); } catch (_) {}
+    if (!SIMULAR) try { await garantirSessao(); await sb.rpc('cha_desistir_compra', { p_pagamento: id }); } catch (_) {}
     sessionStorage.removeItem('cha-pagando'); await carregar(); telaNao(); return;
   }
   openSheet(`<div class="espera"><span class="spin"></span><p>Confirmando o pagamento…</p></div>`);
   // o aviso do Mercado Pago (webhook) costuma chegar em segundos
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < (SIMULAR ? 1 : 8); i++) {
     try {
-      const { data } = await sb.rpc('cha_meus_pagamentos');
+      const { data } = SIMULAR ? { data: simLer().map(p => ({ pagamento: p.id, status: p.status })) }
+        : await sb.rpc('cha_meus_pagamentos');
       const p = (data || []).find(x => x.pagamento === id);
       if (p && (p.status === 'aprovado' || p.status === 'divergente')) { sessionStorage.removeItem('cha-pagando'); await carregar(); telaOk(); return; }
       if (p && (p.status === 'recusado' || p.status === 'estornado')) { sessionStorage.removeItem('cha-pagando'); telaNao(); return; }
@@ -1281,7 +1341,7 @@ function renderPagamentos(){
     const titulo = esc(g.nome) + (g.cotas ? ` <i>· ${p.quantidade} ${p.quantidade === 1 ? 'cota' : 'cotas'}</i>` : '');
     return `<div class="pag-row">
       <span class="pag-txt"><b>${titulo}</b><span>${esc(p.nome)} <i>· ${dia(p.criado_em)}${forma ? ' · ' + esc(forma) : ''}</i></span>${p.mensagem ? `<q>${esc(p.mensagem)}</q>` : ''}</span>
-      <span class="pag-val"><b>${reais(p.valor_pago ?? p.valor)}</b>${p.valor_liquido != null ? `<small>caiu ${reais(p.valor_liquido)}</small>` : ''}<span class="chip ${p.status}">${ROT[p.status] || p.status}</span></span>
+      <span class="pag-val"><b>${reais(p.valor_pago ?? p.valor)}</b>${p.valor_liquido != null ? `<small>caiu ${reais(p.valor_liquido)}</small>` : ''}<span class="chip ${p.status}">${ROT[p.status] || p.status}</span>${p.teste ? '<span class="chip teste">teste</span>' : ''}</span>
     </div>`;
   }).join('');
   box.innerHTML = `<div class="esc-head"><small>Presentes pagos pelo site</small><span>${ok.length} ${ok.length === 1 ? 'pagamento' : 'pagamentos'}</span></div>`
@@ -1479,10 +1539,9 @@ function initReveals(){
   if (MODO_TESTE) {   // faixa discreta: lembra que a compra está ligada só neste aparelho
     const t = document.createElement('div');
     t.id = 'faixa-teste';
-    t.innerHTML = 'Modo de teste da compra · só neste aparelho <a href="?compra=normal">sair</a>';
-    t.style.cssText = 'position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:90;background:#8A6416;color:#fff;font:700 11px/1 var(--sans);letter-spacing:.08em;padding:9px 14px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.18);white-space:nowrap';
-    t.querySelector('a').style.cssText = 'color:#fff;margin-left:8px;text-decoration:underline';
+    t.innerHTML = 'Teste · nada é cobrado<button id="ft-limpar">apagar</button><a href="?compra=normal">sair</a>';
     document.body.appendChild(t);
+    $('#ft-limpar').onclick = async () => { simGravar([]); await carregar(); toast('Pagamentos de teste apagados.'); };
   }
   if (modoCompra()) {   // compra pelo site ligada: "como funciona" fala de pagar, não de reservar
     $('#how-2').textContent = 'Pague com Pix ou cartão';
