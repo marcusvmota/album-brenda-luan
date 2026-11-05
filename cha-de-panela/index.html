@@ -7,19 +7,19 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Chá de Panela · Brenda & Luan</title>
-<meta name="description" content="Escolha um presente da nossa lista ou contribua via PIX. Obrigado por estar com a gente nesse começo!">
+<title>Brenda & Luan · Casamento</title>
+<meta name="description" content="Vamos nos casar! 6 de março de 2027, em Campina Grande. Aqui você encontra a contagem regressiva, o local e a nossa lista de presentes.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Brenda & Luan">
-<meta property="og:title" content="Chá de Panela · Brenda & Luan">
-<meta property="og:description" content="Escolha um presente da nossa lista ou contribua via PIX. Obrigado por estar com a gente nesse começo!">
+<meta property="og:title" content="Brenda & Luan · Casamento">
+<meta property="og:description" content="Vamos nos casar! 6 de março de 2027, em Campina Grande. Aqui você encontra a contagem regressiva, o local e a nossa lista de presentes.">
 <meta property="og:url" content="https://brendaeluan.vercel.app/">
 <meta property="og:image" content="https://brendaeluan.vercel.app/img/previa.jpg">
 <meta property="og:image:secure_url" content="https://brendaeluan.vercel.app/img/previa.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Brenda e Luan abraçados · Chá de Panela">
+<meta property="og:image:alt" content="Brenda e Luan abraçados · Casamento">
 <meta property="og:locale" content="pt_BR">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://brendaeluan.vercel.app/">
@@ -105,6 +105,18 @@ a{color:inherit}
 .cta-link{font-size:13px;color:rgba(255,255,255,.88);text-decoration:underline;text-underline-offset:5px;text-decoration-color:rgba(199,154,91,.8);min-height:44px;padding:0 14px;display:inline-flex;align-items:center}
 
 /* ============ RECADO DOS NOIVOS ============ */
+/* contagem regressiva */
+.contagem{max-width:880px;margin:0 auto;padding:44px 20px 6px;text-align:center}
+.cg-kick{display:inline-flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
+.cg-kick::before,.cg-kick::after{content:"";width:22px;height:1px;background:var(--gold)}
+.cg-grid{display:grid;grid-template-columns:repeat(4,1fr);max-width:520px;margin:18px auto 0}
+.cg-cel{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0}
+.cg-cel+.cg-cel{border-left:1px solid var(--line)}
+.cg-cel b{font-family:var(--serif);font-weight:500;font-size:clamp(40px,11vw,58px);line-height:1;color:var(--navy);font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1;letter-spacing:-.01em}
+.cg-cel span{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.cg-fim{font-family:var(--serif);font-style:italic;font-size:clamp(30px,8vw,40px);color:var(--navy);margin-top:14px}
+.cg-data{display:block;margin-top:18px;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--gold-2)}
+.ev-obs{font-size:12.5px!important;color:var(--muted);margin-top:4px;font-style:italic}
 .recado{max-width:880px;margin:0 auto;padding:56px 24px 8px;display:grid;grid-template-columns:1fr;gap:30px;align-items:center;text-align:center}
 .recado-foto{justify-self:center;width:min(250px,66vw);background:#fff;padding:9px 9px 34px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(60,45,25,.05),0 18px 34px -22px rgba(60,45,25,.45);transform:rotate(-2deg);position:relative}
 .recado-foto img{width:100%;aspect-ratio:4/5;object-fit:cover}
@@ -347,7 +359,7 @@ a{color:inherit}
 
 <div class="abertura" id="abertura" role="dialog" aria-modal="true" aria-label="Boas-vindas">
   <div class="ab-in">
-    <span class="kick">Chá de panela</span>
+    <span class="kick">Vamos nos casar</span>
     <div class="ab-nome">Brenda <i>&amp;</i> Luan</div>
     <span class="ab-data" id="ab-data"></span>
     <button class="ab-btn pulsa" id="ab-entrar">Entrar</button>
@@ -367,7 +379,7 @@ a{color:inherit}
 <header class="hero">
   <div class="hero-bg"><video class="hero-video" id="hero-video" muted autoplay loop playsinline webkit-playsinline preload="auto" aria-hidden="true"></video></div>
   <div class="hero-in">
-    <span class="kick">Chá de panela</span>
+    <span class="kick">Vamos nos casar</span>
     <h1>Brenda <i>&amp;</i> Luan</h1>
     <span class="hero-date" id="hero-date"></span>
     <div class="hero-ctas">
@@ -378,6 +390,18 @@ a{color:inherit}
     </div>
   </div>
 </header>
+
+<section class="contagem" id="contagem" aria-label="Contagem regressiva">
+  <small class="cg-kick">Contagem regressiva</small>
+  <div class="cg-grid" id="cg-grid">
+    <div class="cg-cel"><b id="cg-d">–</b><span>dias</span></div>
+    <div class="cg-cel"><b id="cg-h">–</b><span>horas</span></div>
+    <div class="cg-cel"><b id="cg-m">–</b><span>minutos</span></div>
+    <div class="cg-cel"><b id="cg-s">–</b><span>segundos</span></div>
+  </div>
+  <p class="cg-fim" id="cg-fim" hidden></p>
+  <span class="cg-data" id="cg-data"></span>
+</section>
 
 <section class="recado">
   <figure class="recado-foto"><img src="img/casal.jpg" alt="Brenda e Luan"><figcaption>Brenda &amp; Luan</figcaption></figure>
@@ -392,10 +416,10 @@ a{color:inherit}
   <div class="ev-card">
     <div class="ev-date"><small id="ev-dia-sem"></small><b id="ev-dia"></b><small id="ev-mes"></small></div>
     <div class="ev-info">
-      <span class="caps">O chá de panela</span>
+      <span class="caps">A cerimônia</span>
       <h3 id="ev-titulo"></h3>
       <p id="ev-endereco"></p>
-      <span class="ev-count" id="ev-count"></span>
+      <p class="ev-obs" id="ev-obs"></p>
       <div class="ev-acts">
         <a class="ev-btn" id="ev-mapa" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>Como chegar</a>
       </div>
@@ -784,11 +808,35 @@ const EVENTO = CFG.evento || {};
     $('#ev-titulo').textContent = 'Às ' + h + (EVENTO.lugar ? ', no ' + EVENTO.lugar : '');
   } else { $('#evento').hidden = true; $('#hero-date').hidden = true; }
   $('#ev-endereco').textContent = EVENTO.endereco || '';
+  if (EVENTO.obs) $('#ev-obs').textContent = EVENTO.obs; else $('#ev-obs').hidden = true;
+})();
+/* contagem regressiva: dias · horas · minutos · segundos até EVENTO.inicio */
+function partesContagem(alvo, agora) {
+  let t = Math.max(0, Math.floor((alvo - agora) / 1000));
+  const d = Math.floor(t / 86400); t -= d * 86400;
+  const h = Math.floor(t / 3600); t -= h * 3600;
+  const m = Math.floor(t / 60);
+  return { d, h, m, s: t - m * 60 };
+}
+(function(){
+  if (!EVENTO.inicio) { $('#contagem').hidden = true; return; }
+  const alvo = new Date(EVENTO.inicio).getTime(), dois = n => String(n).padStart(2, '0');
+  const fmt = o => new Intl.DateTimeFormat('pt-BR', {timeZone:'America/Sao_Paulo', ...o}).format(alvo);
+  $('#cg-data').textContent = fmt({day:'numeric', month:'long', year:'numeric'}) + ' · ' + fmt({hour:'2-digit', minute:'2-digit'}).replace(':00', 'h').replace(':', 'h');
+  let timer;
+  const tick = () => {
+    const agora = Date.now();
+    if (agora >= alvo) {
+      clearInterval(timer); $('#cg-grid').hidden = true; $('#cg-fim').hidden = false;
+      $('#cg-fim').textContent = agora - alvo < 864e5 ? 'É hoje!' : 'Felizes para sempre';
+      return;
+    }
+    const p = partesContagem(alvo, agora);
+    $('#cg-d').textContent = p.d; $('#cg-h').textContent = dois(p.h); $('#cg-m').textContent = dois(p.m); $('#cg-s').textContent = dois(p.s);
+  };
+  tick(); timer = setInterval(tick, 1000);
 })();
 (function(){
-  if (!EVENTO.inicio) { $('#ev-count').hidden = true; return; }
-  const dias = Math.ceil((new Date(EVENTO.inicio) - new Date()) / 864e5);
-  $('#ev-count').textContent = dias > 1 ? `Faltam ${dias} dias` : dias === 1 ? 'É amanhã!' : dias === 0 ? 'É hoje!' : 'Já aconteceu';
   if (EVENTO.local) $('#ev-mapa').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(EVENTO.local);
 })();
 

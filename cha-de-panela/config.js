@@ -7,10 +7,11 @@ window.CHA_CONFIG = {
   "pixTitular": "Brenda Teixeira Figueiredo",
   "pixBanco": "Mercado Pago",
   "evento": {
-    "inicio": "2026-12-12T15:00:00-03:00",
-    "cidade": "Imbituba",
-    "lugar": "Espaço Villa Jardim",
-    "endereco": "Rua das Palmeiras, 123 · Centro · Imbituba/SC",
-    "local": "Espaço Villa Jardim, Rua das Palmeiras, 123 - Centro, Imbituba - SC"
+    "inicio": "2027-03-06T15:00:00-03:00",
+    "cidade": "Campina Grande",
+    "lugar": "Espaço Imbituba",
+    "endereco": "Av. Paris · Cuités · Campina Grande – PB",
+    "obs": "A cerimônia e a recepção serão no mesmo local.",
+    "local": "Espaço Imbituba, Av. Paris, Cuités, Campina Grande - PB, 58115-000"
   }
 };
