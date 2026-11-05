@@ -618,6 +618,8 @@ async function carregar(){
     const { data, error } = await sb.rpc('cha_lista');
     if (error) throw error;
     gifts = data.map(p => ({ ...p, quem: [] }));
+    // compra desligada: presentes da lista nova (com preço e sem loja) só aparecem para os noivos revisarem
+    if (!MP_ATIVO && !EDITOR) gifts = gifts.filter(g => !(temPreco(g) && !g.loja));
     await carregarMeusPagos();
     if (EDITOR) await carregarNomes();
     erroCarga = '';
