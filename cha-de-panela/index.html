@@ -364,6 +364,7 @@ body.editor .trocar-foto{display:inline-flex}
 .sim-ops .btn{margin:0}
 #faixa-teste{position:fixed;left:12px;bottom:14px;z-index:90;background:#8A6416;color:#fff;font:600 11.5px/1 var(--sans);letter-spacing:.03em;padding:10px 14px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.18);white-space:nowrap;transition:opacity .2s}
 body.com-folha #faixa-teste{opacity:0;pointer-events:none}
+#faixa-teste.real{background:#8E2F2F}
 #faixa-teste a,#faixa-teste button{color:#fff;margin-left:10px;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer}
 .pag-total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;background:var(--cream);border-radius:13px;padding:13px 15px;margin:4px 0 10px}
 .pag-total small{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
@@ -583,16 +584,26 @@ const CATS = {
    CFG.mpAtivo = true quando a conta da noiva estiver ligada; antes disso o botão avisa "em breve".
    Modo de teste: abrir o site com ?compra=teste liga a compra só NESTE navegador (fica salvo até
    ?compra=normal). Serve para testar com o Mercado Pago antes de liberar para os convidados. */
+/* ?compra=real: Mercado Pago DE VERDADE só neste navegador (cobra de verdade), para os noivos testarem
+   antes de ligar para todos. Sai com ?compra=normal. */
+const COMPRA_REAL = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get('compra');
+    if (q === 'real') { localStorage.setItem('cha-compra-real', '1'); localStorage.removeItem('cha-compra-teste'); }
+    if (q === 'teste' || q === 'normal') localStorage.removeItem('cha-compra-real');
+    return localStorage.getItem('cha-compra-real') === '1' && !CFG.mpAtivo;
+  } catch (e) { return false; }
+})();
 const MODO_TESTE = (() => {
   try {
     const q = new URLSearchParams(location.search).get('compra');
     if (q === 'teste') localStorage.setItem('cha-compra-teste', '1');
     if (q === 'normal') { localStorage.removeItem('cha-compra-teste'); localStorage.removeItem('cha-teste-pagamentos'); }
     // CFG.compraDemo: demonstração para TODOS que abrirem o link (site ainda não divulgado; os noivos veem o fluxo)
-    return (!!CFG.compraDemo || localStorage.getItem('cha-compra-teste') === '1') && !CFG.mpAtivo;
+    return !COMPRA_REAL && (!!CFG.compraDemo || localStorage.getItem('cha-compra-teste') === '1') && !CFG.mpAtivo;
   } catch (e) { return false; }
 })();
-const MP_ATIVO = !!CFG.mpAtivo || MODO_TESTE;
+const MP_ATIVO = !!CFG.mpAtivo || MODO_TESTE || COMPRA_REAL;
 /* Simulação: no modo de teste o "Mercado Pago" é uma tela de mentira e os pagamentos ficam só neste
    navegador (localStorage). Nada vai para o banco, ninguém mais vê, nada é cobrado. Serve para
    conferir o visual e o fluxo inteiro (folha → pagamento → obrigado → área dos noivos). */
@@ -657,6 +668,9 @@ async function carregar(){
     const { data, error } = await sb.rpc('cha_lista');
     if (error) throw error;
     gifts = data.map(p => ({ ...p, quem: [] }));
+    // presente de teste (R$ 2, Mercado Pago real): só aparece no ?compra=real
+    const TESTE_MP = g => /^Teste do site/.test(g.nome || '');
+    if (!COMPRA_REAL) gifts = gifts.filter(g => !TESTE_MP(g));
     // compra desligada: presentes da lista nova (com preço e sem loja) só aparecem para os noivos revisarem
     if (!MP_ATIVO && !EDITOR) gifts = gifts.filter(g => !(temPreco(g) && !g.loja));
     // compra desligada (modo reservar): presente dividido em cotas aparece como UM presente só,
@@ -1603,6 +1617,12 @@ function initReveals(){
       + '<button id="ft-limpar">apagar</button>' + (CFG.compraDemo ? '' : '<a href="?compra=normal">sair</a>');
     document.body.appendChild(t);
     $('#ft-limpar').onclick = async () => { simGravar([]); await carregar(); toast('Pagamentos de teste apagados.'); };
+  }
+  if (COMPRA_REAL) {   // faixa: aqui o pagamento é de verdade
+    const t = document.createElement('div');
+    t.id = 'faixa-teste'; t.className = 'real';
+    t.innerHTML = 'Mercado Pago real · cobra de verdade<a href="?compra=normal">sair</a>';
+    document.body.appendChild(t);
   }
   if (modoCompra()) {   // compra pelo site ligada: "como funciona" fala de pagar, não de reservar
     $('#how-2').textContent = 'Pague com Pix ou cartão';
