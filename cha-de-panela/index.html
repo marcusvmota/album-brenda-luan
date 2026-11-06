@@ -671,6 +671,7 @@ async function carregar(){
     // presente de teste (R$ 2, Mercado Pago real): só aparece no ?compra=real
     const TESTE_MP = g => /^Teste do site/.test(g.nome || '');
     if (!COMPRA_REAL) gifts = gifts.filter(g => !TESTE_MP(g));
+    else gifts.sort((a, b) => TESTE_MP(b) - TESTE_MP(a));   // no ?compra=real o presente de teste vem primeiro
     // compra desligada: presentes da lista nova (com preço e sem loja) só aparecem para os noivos revisarem
     if (!MP_ATIVO && !EDITOR) gifts = gifts.filter(g => !(temPreco(g) && !g.loja));
     // compra desligada (modo reservar): presente dividido em cotas aparece como UM presente só,
@@ -1621,8 +1622,12 @@ function initReveals(){
   if (COMPRA_REAL) {   // faixa: aqui o pagamento é de verdade
     const t = document.createElement('div');
     t.id = 'faixa-teste'; t.className = 'real';
-    t.innerHTML = 'Mercado Pago real · cobra de verdade<a href="?compra=normal">sair</a>';
+    t.innerHTML = 'Mercado Pago real · cobra de verdade<button id="fr-abrir">testar R$ 2</button><a href="?compra=normal">sair</a>';
     document.body.appendChild(t);
+    $('#fr-abrir').onclick = () => {
+      const g = gifts.find(x => /^Teste do site/.test(x.nome || ''));
+      if (g) openPickSheet(g.id); else toast('O presente de teste não está na lista.');
+    };
   }
   if (modoCompra()) {   // compra pelo site ligada: "como funciona" fala de pagar, não de reservar
     $('#how-2').textContent = 'Pague com Pix ou cartão';
