@@ -120,6 +120,8 @@ a{color:inherit}
 .recado{max-width:880px;margin:0 auto;padding:56px 24px 8px;display:grid;grid-template-columns:1fr;gap:30px;align-items:center;text-align:center}
 .recado-foto{justify-self:center;width:min(250px,66vw);background:#fff;padding:9px 9px 34px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(60,45,25,.05),0 18px 34px -22px rgba(60,45,25,.45);transform:rotate(-2deg);position:relative}
 .recado-foto img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.trocar-foto{display:none;position:absolute;left:50%;top:18px;transform:translateX(-50%);align-items:center;gap:7px;background:rgba(22,43,69,.86);color:#fff;border:0;border-radius:999px;padding:9px 15px;font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+body.editor .trocar-foto{display:inline-flex}
 .recado-foto figcaption{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-family:var(--serif);font-style:italic;font-size:15px;color:var(--muted)}
 .recado-txt small{display:inline-flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
 .recado-txt small::before,.recado-txt small::after{content:"";width:22px;height:1px;background:var(--gold)}
@@ -458,7 +460,9 @@ body.com-folha #faixa-teste{opacity:0;pointer-events:none}
 </section>
 
 <section class="recado">
-  <figure class="recado-foto"><img src="img/casal.jpg" alt="Brenda e Luan"><figcaption>Brenda &amp; Luan</figcaption></figure>
+  <figure class="recado-foto"><img id="foto-casal" src="img/casal.jpg" alt="Brenda e Luan"><figcaption>Brenda &amp; Luan</figcaption>
+    <button class="trocar-foto" id="trocar-foto" type="button">Trocar foto</button>
+    <input type="file" id="foto-casal-arquivo" accept="image/*" hidden></figure>
   <div class="recado-txt">
     <small>Um recado nosso</small>
     <p>Cada presente desta lista vai fazer parte do nosso dia a dia, do primeiro café da manhã aos jantares com quem a gente ama. Obrigado por estar com a gente nesse começo. Que o nosso bom Deus continue abençoando cada um de vocês!</p>
@@ -1238,6 +1242,57 @@ function openEditSheet(id){
     }
   };
 }
+/* ====== foto do casal (recado): os noivos trocam pela Área dos noivos ======
+   Fica no bucket "cha" em site/casal.jpg. Se não existir, usa a foto que vem com o site (img/casal.jpg).
+   ?v= muda a cada 2 min para a troca aparecer logo para todo mundo (sem esperar o cache de 1 ano). */
+const FOTO_CASAL = 'site/casal.jpg';
+function fotoCasalUrl(agora){
+  const v = agora ? Date.now() : Math.floor(Date.now() / 120000);
+  return CFG.supabaseUrl + '/storage/v1/object/public/cha/' + FOTO_CASAL + '?v=' + v;
+}
+function carregarFotoCasal(agora){
+  const img = $('#foto-casal'); if (!img || !TEM_BANCO) return;
+  const teste = new Image();
+  teste.onload = () => { img.src = teste.src; };
+  teste.src = fotoCasalUrl(agora);          // se der erro (não existe), fica a foto original do site
+}
+function openFotoCasalSheet(){
+  openSheet(`<h3>Foto de vocês</h3><p>Essa é a foto que aparece ao lado do recado. Escolham outra do celular; ela aparece para todo mundo em até 2 minutos.</p>
+    <div class="login-err" id="fc-err"></div>
+    <button class="btn" id="fc-escolher">Escolher foto</button>
+    <button class="btn alt" id="fc-original">Voltar para a foto original</button>
+    <button class="btn alt" id="fc-cancel">Cancelar</button>`);
+  $('#fc-cancel').onclick = closeSheet;
+  $('#fc-escolher').onclick = () => $('#foto-casal-arquivo').click();
+  $('#fc-original').onclick = async () => {
+    const b = $('#fc-original'); ocupado(b, true, 'Voltando…');
+    try {
+      const { error } = await sbN.storage.from('cha').remove([FOTO_CASAL]);
+      if (error) throw error;
+      $('#foto-casal').src = 'img/casal.jpg';
+      closeSheet(); toast('Pronto, voltou a foto original.');
+    } catch (e) { console.warn('foto casal', e); ocupado(b, false); $('#fc-err').textContent = 'Não deu para voltar agora. Tente de novo.'; }
+  };
+}
+$('#trocar-foto').onclick = openFotoCasalSheet;
+$('#foto-casal-arquivo').addEventListener('change', async (ev) => {
+  const file = ev.target.files && ev.target.files[0]; ev.target.value = '';
+  if (!file) return;
+  const b = $('#fc-escolher'); if (b) ocupado(b, true, 'Enviando…');
+  try {
+    let blob = await shrinkImage(file, 1200, .86);
+    if (blob.size > 950000) blob = await shrinkImage(file, 1000, .78);   // o bucket aceita até 1 MB
+    const { error } = await sbN.storage.from('cha').upload(FOTO_CASAL, blob, { contentType: 'image/jpeg', cacheControl: '60', upsert: true });
+    if (error) throw error;
+    $('#foto-casal').src = URL.createObjectURL(blob);   // mostra na hora para os noivos
+    closeSheet(); toast('Foto trocada! Em até 2 minutos aparece para todo mundo.');
+  } catch (e) {
+    console.warn('foto casal', e);
+    if (b) ocupado(b, false);
+    const err = $('#fc-err'); if (err) err.textContent = 'Não deu para enviar a foto. Confira a internet e tente de novo.';
+  }
+});
+
 /* reduz a foto no próprio celular antes de enviar (lado maior = max px, JPEG) */
 function shrinkImage(file, max, quality){
   return new Promise((resolve, reject) => {
@@ -1539,6 +1594,7 @@ function initReveals(){
     } catch (e) {}
   }
   aplicarModo();
+  carregarFotoCasal();
   await carregar();
   if (MODO_TESTE) {   // faixa discreta: lembra que a compra está ligada só neste aparelho
     const t = document.createElement('div');
