@@ -668,10 +668,10 @@ async function carregar(){
     const { data, error } = await sb.rpc('cha_lista');
     if (error) throw error;
     gifts = data.map(p => ({ ...p, quem: [] }));
-    // presente de teste (R$ 2, Mercado Pago real): só aparece no ?compra=real
+    // presente de teste (Mercado Pago real): aparece quando o pagamento é de verdade (mpAtivo ou ?compra=real)
     const TESTE_MP = g => /^Teste do site/.test(g.nome || '');
-    if (!COMPRA_REAL) gifts = gifts.filter(g => !TESTE_MP(g));
-    else gifts.sort((a, b) => TESTE_MP(b) - TESTE_MP(a));   // no ?compra=real o presente de teste vem primeiro
+    if (!(COMPRA_REAL || CFG.mpAtivo)) gifts = gifts.filter(g => !TESTE_MP(g));
+    else gifts.sort((a, b) => TESTE_MP(b) - TESTE_MP(a));   // o presente de teste vem primeiro
     // compra desligada: presentes da lista nova (com preço e sem loja) só aparecem para os noivos revisarem
     if (!MP_ATIVO && !EDITOR) gifts = gifts.filter(g => !(temPreco(g) && !g.loja));
     // compra desligada (modo reservar): presente dividido em cotas aparece como UM presente só,
@@ -1175,7 +1175,7 @@ function giftForm(g){
     <div class="field"><label>Detalhe (opcional)</label><input id="f-detalhe" maxlength="60" value="${g?esc(g.detalhe||''):''}" placeholder="Ex: 220V, cor preta"></div>
     <div class="row2">
       <div class="field"><label>Categoria</label><select id="f-cat">${catOpts}</select></div>
-      <div class="field"><label>Quantidade</label><input id="f-qtd" type="number" min="1" max="50" value="${g?g.qtd:1}"></div>
+      <div class="field"><label>Quantidade</label><input id="f-qtd" type="number" min="1" max="300" value="${g?g.qtd:1}"></div>
     </div>
     ${temColunasCompra() ? `<div class="row2">
       <div class="field"><label>Vocês recebem (R$)</label><input id="f-valor" type="number" min="1" max="50000" step="0.01" inputmode="decimal" value="${g && g.valor != null ? Number(g.valor) : ''}" placeholder="Ex: 300"></div>
@@ -1224,7 +1224,7 @@ function openEditSheet(id){
     if (loja && !/^https?:\/\//i.test(loja)) loja = 'https://' + loja;
     const data = {
       nome, detalhe: $('#f-detalhe').value.trim() || null, cat: $('#f-cat').value,
-      loja: loja || null, qtd: Math.min(50, Math.max(1, parseInt($('#f-qtd').value) || 1)), fav: $('#f-fav').checked,
+      loja: loja || null, qtd: Math.min(300, Math.max(1, parseInt($('#f-qtd').value) || 1)), fav: $('#f-fav').checked,
     };
     if (fv) {
       const v = parseFloat(fv.value);
