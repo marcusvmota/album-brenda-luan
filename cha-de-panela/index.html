@@ -627,6 +627,7 @@ const modoCompra = () => MP_ATIVO && gifts.some(temPreco);
 const temColunasCompra = () => gifts.length > 0 && 'preco' in gifts[0];   // migration 0005 já rodou
 let meusPagos = new Map();   // presente → quantas unidades/cotas ESTE convidado já pagou (aprovado)
 let pagamentos = [];         // só noivos
+let testeIds = new Set();    // presentes de teste (escondidos do site e do painel)
 const METODO = { pix: 'Pix', credit_card: 'Cartão', debit_card: 'Débito', account_money: 'Saldo MP', ticket: 'Boleto', bank_transfer: 'Pix' };
 
 /* ====== estado ====== */
@@ -668,9 +669,11 @@ async function carregar(){
     const { data, error } = await sb.rpc('cha_lista');
     if (error) throw error;
     gifts = data.map(p => ({ ...p, quem: [] }));
-    // presente de teste (Mercado Pago real): aparece quando o pagamento é de verdade (mpAtivo ou ?compra=real)
+    // presente de teste (Mercado Pago real): fica no banco (tem pagamentos), mas some do site.
+    // Só volta no ?compra=real, para um teste novo. Os pagamentos dele também saem do painel dos noivos.
     const TESTE_MP = g => /^Teste do site/.test(g.nome || '');
-    if (!(COMPRA_REAL || CFG.mpAtivo)) gifts = gifts.filter(g => !TESTE_MP(g));
+    testeIds = new Set(gifts.filter(TESTE_MP).map(g => g.id));
+    if (!COMPRA_REAL) gifts = gifts.filter(g => !TESTE_MP(g));
     else gifts.sort((a, b) => TESTE_MP(b) - TESTE_MP(a));   // o presente de teste vem primeiro
     // compra desligada: presentes da lista nova (com preço e sem loja) só aparecem para os noivos revisarem
     if (!MP_ATIVO && !EDITOR) gifts = gifts.filter(g => !(temPreco(g) && !g.loja));
@@ -1403,7 +1406,7 @@ function renderPagamentos(){
   const porId = Object.fromEntries(gifts.map(g => [g.id, g]));
   // pendentes vencidos e recusados não interessam aos noivos
   const vivo = p => p.status === 'aprovado' || p.status === 'divergente' || p.status === 'estornado' || p.status === 'pendente' && Date.now() - new Date(p.criado_em) < 30 * 60e3;
-  const lista = pagamentos.filter(vivo);
+  const lista = pagamentos.filter(vivo).filter(p => COMPRA_REAL || !testeIds.has(p.presente_id));
   const ok = lista.filter(p => p.status === 'aprovado' || p.status === 'divergente');
   const recebido = ok.reduce((s, p) => s + Number(p.valor_liquido ?? p.valor_pago ?? 0), 0);
   const pago = ok.reduce((s, p) => s + Number(p.valor_pago ?? p.valor ?? 0), 0);
